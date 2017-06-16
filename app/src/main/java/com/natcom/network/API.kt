@@ -1,14 +1,14 @@
 package com.natcom.network
 
-import com.natcom.model.*
+import com.natcom.model.CloseRequest
+import com.natcom.model.DenyRequest
+import com.natcom.model.Lead
+import com.natcom.model.ShiftRequest
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
 
 interface API {
-    @POST("login")
-    fun login(@Body request: LoginRequest): Call<LoginResponse>
-
     @GET("/lead/list/{type}")
     fun list(@Path("type") type: String, @Query("param") param: String?): Call<List<Lead>>
 

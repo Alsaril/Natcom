@@ -6,4 +6,15 @@
     <string name="error">Error</string>
     <string name="empty_fields">Empty fields</string>
     <string name="tab">TAB</string>
+    <string name="search">Search</string>
+    <string name="remove">Remove</string>
+    <string name="close">Close</string>
+    <string name="shift">Shift</string>
+    <string name="deny">Deny</string>
+    <string name="cotract">Contract</string>
+    <string name="mount">Mount</string>
+    <string name="comment">Comment</string>
+    <string name="date">Date</string>
+    <string name="picture">Picture</string>
+    <string name="save">Save</string>
 </resources>

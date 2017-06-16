@@ -2,19 +2,19 @@ package com.natcom.activity
 
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
+import android.support.v4.view.MenuItemCompat
 import android.support.v7.app.AppCompatActivity
-import com.natcom.LEAD_KEY
-import com.natcom.LIST_TYPE_KEY
-import com.natcom.PARAM_KEY
-import com.natcom.R
-import com.natcom.fragment.CloseLeadFragment
-import com.natcom.fragment.LeadFragment
-import com.natcom.fragment.ListFragment
-import com.natcom.fragment.ListType
+import android.support.v7.widget.SearchView
+import android.support.v7.widget.Toolbar
+import android.view.Menu
+import android.view.MenuItem
+import com.natcom.*
+import com.natcom.fragment.*
 import com.natcom.model.Lead
 import kotterknife.bindView
 import java.util.*
@@ -29,13 +29,16 @@ class MainActivity : AppCompatActivity(), CHF {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        /*if (!auth(this)) {
+        if (!auth(this)) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
             return
-        }*/
+        }
 
         setContentView(R.layout.main_activity)
+
+        val mActionBarToolbar = findViewById(R.id.toolbar_actionbar) as Toolbar
+        setSupportActionBar(mActionBarToolbar)
 
         navigation.setOnNavigationItemSelectedListener {
             val type = when (it.itemId) {
@@ -67,7 +70,35 @@ class MainActivity : AppCompatActivity(), CHF {
 
         if (savedInstanceState == null) {
             changeFragment(ListFragment(), false)
+        } else {
+            fragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_activity_main, menu)
+        val searchMenuItem = menu.findItem(R.id.action_search);
+        val mSearchView = searchMenuItem.actionView as SearchView
+        mSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                (fragment as SearchFragment).update(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?) = false
+        })
+        MenuItemCompat.setOnActionExpandListener(searchMenuItem, object : MenuItemCompat.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+                changeFragment(SearchFragment(), false)
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+                back()
+                return true
+            }
+        })
+        return true
     }
 
     fun changeFragment(fragment: Fragment, replaceBackStack: Boolean) {
@@ -75,7 +106,7 @@ class MainActivity : AppCompatActivity(), CHF {
             clearBackStack()
         }
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.root, fragment)
+        transaction.replace(R.id.root, fragment, FRAGMENT_TAG)
         if (!replaceBackStack) {
             transaction.addToBackStack(null)
         }
@@ -89,14 +120,18 @@ class MainActivity : AppCompatActivity(), CHF {
 
     override fun openLead(lead: Lead) {
         val leadFragment = LeadFragment()
-        leadFragment.arguments.putParcelable(LEAD_KEY, lead)
+        val bundle = Bundle()
+        bundle.putParcelable(LEAD_KEY, lead)
+        leadFragment.arguments = bundle
         clearBackStack()
         changeFragment(leadFragment, false)
     }
 
     override fun closeLead(lead: Lead) {
         val closeFragment = CloseLeadFragment()
-        closeFragment.arguments.putParcelable(LEAD_KEY, lead)
+        val bundle = Bundle()
+        bundle.putParcelable(LEAD_KEY, lead)
+        closeFragment.arguments = bundle
         changeFragment(closeFragment, false)
     }
 

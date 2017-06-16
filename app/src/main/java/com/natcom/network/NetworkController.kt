@@ -3,14 +3,20 @@ package com.natcom.network
 import android.content.Context
 import android.net.Uri
 import android.preference.PreferenceManager
+import android.util.Log
 import com.google.gson.GsonBuilder
-import com.natcom.CookieHelper
-import com.natcom.CookieHelper.reset
-import com.natcom.Keys
+import com.natcom.LOGIN_KEY
 import com.natcom.MyApp
+import com.natcom.PASSWORD_KEY
 import com.natcom.fragment.ListType
-import com.natcom.model.*
-import okhttp3.*
+import com.natcom.model.CloseRequest
+import com.natcom.model.DenyRequest
+import com.natcom.model.Lead
+import com.natcom.reset
+import okhttp3.Credentials
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -27,51 +33,19 @@ object NetworkController {
 
     private fun init(context: Context): Retrofit {
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
-        val okHttpClient = OkHttpClient.Builder().cookieJar(object : CookieJar {
-            override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-                val e = sp.edit()
-                for (c in cookies) {
-                    Keys.values()
-                            .filter { c.name() == it.value() }
-                            .forEach { CookieHelper.store(c, e) }
-                }
-                e.apply()
-            }
-
-            override fun loadForRequest(url: HttpUrl): List<Cookie> =
-                    Keys.values()
-                            .filter { sp.contains(it.value()) }
-                            .map { CookieHelper.get(it, sp) }
-        }).build()
-
-        val gson = GsonBuilder().create()
-
+        val okHttpClient = OkHttpClient.Builder().addInterceptor {
+            val request = it.request()
+            val authenticatedRequest = request.newBuilder()
+                    .header("Authorization",
+                            Credentials.basic(sp.getString(LOGIN_KEY, ""), sp.getString(PASSWORD_KEY, ""))).build()
+            it.proceed(authenticatedRequest)
+        }.build()
 
         return Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
                 .build()
-    }
-
-    var loginCallback: LoginResult? = null
-        get
-        set
-
-    fun login(login: String, password: String) {
-        api.login(LoginRequest(login, password)).enqueue(object : Callback<LoginResponse> {
-            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                loginCallback?.onLoginResult(false)
-            }
-
-            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                if (response.code() == 200) {
-                    loginCallback?.onLoginResult(true, response.body().id)
-                } else {
-                    loginCallback?.onLoginResult(false)
-                }
-            }
-        })
     }
 
     var listCallback: ListResult? = null
@@ -82,6 +56,7 @@ object NetworkController {
         api.list(type.name.toLowerCase(), param).enqueue(object : Callback<List<Lead>> {
             override fun onFailure(call: Call<List<Lead>>, t: Throwable) {
                 listCallback?.onListResult(false)
+                Log.d("TAG", t.toString())
             }
 
             override fun onResponse(call: Call<List<Lead>>, response: Response<List<Lead>>) {
@@ -93,6 +68,7 @@ object NetworkController {
                 if (response.code() == 401) {
                     reset()
                 }
+                Log.d("TAG", response.message())
             }
         })
     }
@@ -188,10 +164,6 @@ object NetworkController {
             }
         })
     }
-}
-
-interface LoginResult {
-    fun onLoginResult(success: Boolean, id: Int = 0)
 }
 
 interface ListResult {

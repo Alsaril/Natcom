@@ -3,6 +3,7 @@ package com.natcom.fragment
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -22,9 +23,8 @@ import com.rv150.musictransfer.fragment.BoundFragment
 import kotterknife.bindView
 import java.util.*
 
-class ListFragment : BoundFragment(), ListResult, View.OnClickListener, View.OnLongClickListener, AssignResult {
+open class ListFragment : BoundFragment(), ListResult, View.OnClickListener, View.OnLongClickListener, AssignResult {
     val list by bindView<RecyclerView>(R.id.list)
-    var adapter: ListAdapter? = null
     var type: ListType? = null
     var param: String? = null
 
@@ -39,6 +39,10 @@ class ListFragment : BoundFragment(), ListResult, View.OnClickListener, View.OnL
         }
 
         (activity as AppCompatActivity).supportActionBar?.title = type.toString()
+
+        val llm = LinearLayoutManager(context)
+        llm.orientation = LinearLayoutManager.VERTICAL
+        list.layoutManager = llm
 
         NetworkController.listCallback = this
         NetworkController.assignCallback = this
@@ -76,21 +80,20 @@ class ListFragment : BoundFragment(), ListResult, View.OnClickListener, View.OnL
             return
         }
         if (list != null) {
+            this.list.visibility = View.VISIBLE
             this.list.swapAdapter(ListAdapter(list, this), false)
         }
     }
 
     override fun onClick(v: View?) {
         val itemPosition = list.getChildLayoutPosition(v)
-        val item = adapter?.list?.get(itemPosition)
-        if (item != null) {
-            (activity as CHF).openLead(item)
-        }
+        val item = (list.adapter as ListAdapter?)?.list?.get(itemPosition)
+        item?.let { (activity as CHF).openLead(it) }
     }
 
     override fun onLongClick(v: View?): Boolean {
         val itemPosition = list.getChildLayoutPosition(v)
-        val item = adapter?.list?.get(itemPosition) ?: return false
+        val item = (list.adapter as ListAdapter?)?.list?.get(itemPosition) ?: return false
 
         AlertDialog.Builder(activity).setMessage("Assign?")
                 .setPositiveButton("Yes", { dialog, id ->
