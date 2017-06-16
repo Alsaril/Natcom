@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Natcom</string>
+    <string name="login">Login</string>
+    <string name="login_text">Login</string>
+    <string name="password_text">Password</string>
+    <string name="error">Error</string>
+    <string name="empty_fields">Empty fields</string>
+</resources>
