@@ -54,15 +54,17 @@ class MainActivity : AppCompatActivity(), CHF {
         })
 
         if (savedInstanceState == null) {
-            changeFragment(ListFragment(), true)
+            changeFragment(ListFragment(), false)
         }
     }
 
     fun changeFragment(fragment: Fragment, replaceBackStack: Boolean) {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.root, fragment)
         if (replaceBackStack) {
             clearBackStack()
+        }
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.root, fragment)
+        if (!replaceBackStack) {
             transaction.addToBackStack(null)
         }
         transaction.commitAllowingStateLoss()
@@ -77,14 +79,13 @@ class MainActivity : AppCompatActivity(), CHF {
         val leadFragment = LeadFragment()
         leadFragment.arguments.putParcelable(LEAD_KEY, lead)
         clearBackStack()
-        changeFragment(fragment!!, false)
-        changeFragment(leadFragment, true)
+        changeFragment(leadFragment, false)
     }
 
     override fun closeLead(lead: Lead) {
         val closeFragment = CloseLeadFragment()
         closeFragment.arguments.putParcelable(LEAD_KEY, lead)
-        changeFragment(closeFragment, true)
+        changeFragment(closeFragment, false)
     }
 
     override fun back() {

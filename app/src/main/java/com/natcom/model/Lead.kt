@@ -9,6 +9,7 @@ data class Lead(val id: Int,
                 val date: String,
                 val mountDate: String,
                 val status: String,
+                val responsible: String,
                 val contacts: List<Contact>) : Parcelable {
 
     companion object {
@@ -24,9 +25,10 @@ data class Lead(val id: Int,
                     val date = readString()
                     val mountDate = readString()
                     val status = readString()
+                    val responsible = readString()
                     val contacts = java.util.ArrayList<Contact>()
                     readTypedList<Contact>(contacts, Contact.CREATOR)
-                    return Lead(id, company, address, date, mountDate, status, contacts)
+                    return Lead(id, company, address, date, mountDate, status, responsible, contacts)
                 }
             }
         }
@@ -40,6 +42,7 @@ data class Lead(val id: Int,
             writeString(date)
             writeString(mountDate)
             writeString(status)
+            writeString(responsible)
             writeTypedList(contacts)
         }
     }
