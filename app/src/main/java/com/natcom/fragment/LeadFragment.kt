@@ -30,7 +30,7 @@ class LeadFragment : BoundFragment(), DenyResult {
     var lead: Lead? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        initView(inflater.inflate(R.layout.lead_fragment, container))
+        initView(inflater.inflate(R.layout.lead_fragment, container, false))
 
         lead = arguments.getParcelable<Lead>(LEAD_KEY)
 
@@ -59,13 +59,13 @@ class LeadFragment : BoundFragment(), DenyResult {
     }
 
     fun deny() {
-        val edittext = EditText(activity)
+        val editText = EditText(activity)
         AlertDialog.Builder(activity)
                 .setMessage("Comment")
                 .setTitle("Deny lead")
-                .setView(edittext)
-                .setPositiveButton("OK") { dialog, whichButton ->
-                    NetworkController.deny(lead!!.id, edittext.text.toString())
+                .setView(editText)
+                .setPositiveButton("OK") { _, _ ->
+                    NetworkController.deny(lead!!.id, editText.text.toString())
                 }.show()
     }
 

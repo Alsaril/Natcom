@@ -29,17 +29,12 @@ class ListFragment : BoundFragment(), ListResult, View.OnClickListener, View.OnL
     var param: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        initView(inflater.inflate(R.layout.list_fragment, container))
+        initView(inflater.inflate(R.layout.list_fragment, container, false))
         type = arguments?.getSerializable(LIST_TYPE_KEY) as ListType? ?: ListType.TODAY
 
         savedInstanceState?.let {
             type = it.getSerializable(LIST_TYPE_KEY) as ListType? ?: ListType.TODAY
-            if (type == ListType.DATE || type == ListType.SEARCH) {
-                param = it.getString(PARAM_KEY)
-                if (param == null) {
-                    type = ListType.TODAY
-                }
-            }
+            param = it.getString(PARAM_KEY)
         }
         NetworkController.listCallback = this
         NetworkController.assignCallback = this
@@ -73,7 +68,7 @@ class ListFragment : BoundFragment(), ListResult, View.OnClickListener, View.OnL
 
     override fun onListResult(success: Boolean, list: List<Lead>?) {
         if (!success) {
-            Toast.makeText(context, R.id.error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.error, Toast.LENGTH_SHORT).show()
             return
         }
         if (list != null) {

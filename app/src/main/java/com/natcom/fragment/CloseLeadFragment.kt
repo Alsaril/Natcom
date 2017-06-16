@@ -9,7 +9,10 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.Toast
 import com.natcom.LEAD_KEY
 import com.natcom.activity.CHF
 import com.natcom.model.Lead
@@ -35,7 +38,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
     var lead: Lead? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        initView(inflater.inflate(R.layout.close_fragment, container))
+        initView(inflater.inflate(R.layout.close_fragment, container, false))
 
         lead = arguments.getParcelable<Lead>(LEAD_KEY)
 
