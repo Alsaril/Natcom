@@ -2,6 +2,7 @@ package com.natcom.fragment
 
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.natcom.LIST_TYPE_KEY
 import com.natcom.PARAM_KEY
+import com.natcom.R
 import com.natcom.activity.CHF
 import com.natcom.model.Lead
 import com.natcom.network.AssignResult
@@ -18,9 +20,7 @@ import com.natcom.network.ListResult
 import com.natcom.network.NetworkController
 import com.rv150.musictransfer.fragment.BoundFragment
 import kotterknife.bindView
-import natcom.com.natcom.R
 import java.util.*
-
 
 class ListFragment : BoundFragment(), ListResult, View.OnClickListener, View.OnLongClickListener, AssignResult {
     val list by bindView<RecyclerView>(R.id.list)
@@ -31,11 +31,15 @@ class ListFragment : BoundFragment(), ListResult, View.OnClickListener, View.OnL
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         initView(inflater.inflate(R.layout.list_fragment, container, false))
         type = arguments?.getSerializable(LIST_TYPE_KEY) as ListType? ?: ListType.TODAY
+        param = arguments?.getString(PARAM_KEY)
 
         savedInstanceState?.let {
             type = it.getSerializable(LIST_TYPE_KEY) as ListType? ?: ListType.TODAY
             param = it.getString(PARAM_KEY)
         }
+
+        (activity as AppCompatActivity).supportActionBar?.title = type.toString()
+
         NetworkController.listCallback = this
         NetworkController.assignCallback = this
 

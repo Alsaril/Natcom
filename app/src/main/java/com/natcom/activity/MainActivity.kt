@@ -1,24 +1,29 @@
 package com.natcom.activity
 
 
+import android.app.DatePickerDialog
 import android.os.Bundle
-import android.support.design.widget.TabLayout
+import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v7.app.AppCompatActivity
 import com.natcom.LEAD_KEY
 import com.natcom.LIST_TYPE_KEY
+import com.natcom.PARAM_KEY
+import com.natcom.R
 import com.natcom.fragment.CloseLeadFragment
 import com.natcom.fragment.LeadFragment
 import com.natcom.fragment.ListFragment
 import com.natcom.fragment.ListType
 import com.natcom.model.Lead
 import kotterknife.bindView
-import natcom.com.natcom.R
+import java.util.*
+import java.util.Calendar.*
+
 
 class MainActivity : AppCompatActivity(), CHF {
 
-    val tabs by bindView<TabLayout>(R.id.tabs)
+    val navigation by bindView<BottomNavigationView>(R.id.navigation)
     var fragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,26 +37,33 @@ class MainActivity : AppCompatActivity(), CHF {
 
         setContentView(R.layout.main_activity)
 
-        ListType.values().take(2).forEach { tabs.addTab(tabs.newTab().setText(it.name)); }
-
-        tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-
+        navigation.setOnNavigationItemSelectedListener {
+            val type = when (it.itemId) {
+                R.id.today -> ListType.TODAY
+                R.id.tomorrow -> ListType.TOMORROW
+                else -> ListType.DATE
             }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-
-            }
-
-            override fun onTabSelected(tab: TabLayout.Tab) {
+            if (type == ListType.DATE) {
+                val date = Calendar.getInstance()
+                DatePickerDialog(this, { view, year, month, day ->
+                    run {
+                        val args = Bundle()
+                        args.putSerializable(LIST_TYPE_KEY, type)
+                        args.putString(PARAM_KEY, "$year.$month.$day")
+                        val fragment = ListFragment()
+                        fragment.arguments = args
+                        changeFragment(fragment, true)
+                    }
+                }, date.get(YEAR), date.get(MONTH), date.get(DAY_OF_MONTH)).show()
+            } else {
                 val args = Bundle()
-                args.putSerializable(LIST_TYPE_KEY, ListType.values()[tab.position])
+                args.putSerializable(LIST_TYPE_KEY, type)
                 val fragment = ListFragment()
                 fragment.arguments = args
                 changeFragment(fragment, true)
             }
-
-        })
+            true
+        }
 
         if (savedInstanceState == null) {
             changeFragment(ListFragment(), false)

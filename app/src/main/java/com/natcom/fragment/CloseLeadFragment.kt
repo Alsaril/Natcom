@@ -14,6 +14,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import com.natcom.LEAD_KEY
+import com.natcom.R
 import com.natcom.activity.CHF
 import com.natcom.model.Lead
 import com.natcom.network.CloseResult
@@ -21,7 +22,6 @@ import com.natcom.network.NetworkController
 import com.natcom.network.PictureResult
 import com.rv150.musictransfer.fragment.BoundFragment
 import kotterknife.bindView
-import natcom.com.natcom.R
 import java.io.File
 
 

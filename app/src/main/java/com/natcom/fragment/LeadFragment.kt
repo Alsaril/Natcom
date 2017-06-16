@@ -10,13 +10,13 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.natcom.LEAD_KEY
+import com.natcom.R
 import com.natcom.activity.CHF
 import com.natcom.model.Lead
 import com.natcom.network.DenyResult
 import com.natcom.network.NetworkController
 import com.rv150.musictransfer.fragment.BoundFragment
 import kotterknife.bindView
-import natcom.com.natcom.R
 
 class LeadFragment : BoundFragment(), DenyResult {
     val company by bindView<TextView>(R.id.company)

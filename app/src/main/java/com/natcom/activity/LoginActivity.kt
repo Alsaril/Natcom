@@ -1,7 +1,6 @@
 package com.natcom.activity
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -10,10 +9,10 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import com.natcom.ID_KEY
+import com.natcom.R
 import com.natcom.network.LoginResult
 import com.natcom.network.NetworkController
 import kotterknife.bindView
-import natcom.com.natcom.R
 
 class LoginActivity : AppCompatActivity(), LoginResult {
     val login by bindView<TextView>(R.id.login)
@@ -23,7 +22,7 @@ class LoginActivity : AppCompatActivity(), LoginResult {
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(natcom.com.natcom.R.layout.login_activity)
+        setContentView(com.natcom.R.layout.login_activity)
 
         NetworkController.loginCallback = this
         confirm.setOnClickListener { confirm() }

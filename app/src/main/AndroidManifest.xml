@@ -1,10 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 
-    package="natcom.com.natcom">
+    package="com.natcom">
 
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name="com.natcom.MyApp"
