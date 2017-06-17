@@ -2,6 +2,7 @@ package com.natcom.fragment
 
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,13 +10,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import com.natcom.LEAD_KEY
 import com.natcom.R
-import com.natcom.activity.CHF
-import com.natcom.model.Lead
+import com.natcom.activity.LeadController
 import com.natcom.network.DenyResult
 import com.natcom.network.NetworkController
-import com.rv150.musictransfer.fragment.BoundFragment
 import kotterknife.bindView
 
 class LeadFragment : BoundFragment(), DenyResult {
@@ -27,12 +25,10 @@ class LeadFragment : BoundFragment(), DenyResult {
     val shift by bindView<Button>(R.id.shift)
     val deny by bindView<Button>(R.id.deny)
 
-    var lead: Lead? = null
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         initView(inflater.inflate(R.layout.lead_fragment, container, false))
 
-        lead = arguments.getParcelable<Lead>(LEAD_KEY)
+        val lead = (activity as LeadController).lead()
 
         lead?.let {
             company.text = it.company
@@ -40,6 +36,8 @@ class LeadFragment : BoundFragment(), DenyResult {
             date.text = it.date
             mount_date.text = it.mountDate
         }
+
+        (activity as AppCompatActivity).supportActionBar?.title = "Lead"
 
         NetworkController.denyCallback = this
 
@@ -50,8 +48,14 @@ class LeadFragment : BoundFragment(), DenyResult {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        NetworkController.denyCallback = null
+    }
+
     fun close() {
-        lead?.let { (activity as CHF).closeLead(it) }
+        (activity as LeadController).closeLead()
     }
 
     fun shift() {
@@ -65,7 +69,7 @@ class LeadFragment : BoundFragment(), DenyResult {
                 .setTitle("Deny lead")
                 .setView(editText)
                 .setPositiveButton("OK") { _, _ ->
-                    NetworkController.deny(lead!!.id, editText.text.toString())
+                    NetworkController.deny((activity as LeadController).lead()!!.id, editText.text.toString())
                 }.show()
     }
 
@@ -75,6 +79,6 @@ class LeadFragment : BoundFragment(), DenyResult {
         } else {
             Toast.makeText(activity, "Deny successful!", Toast.LENGTH_SHORT).show()
         }
-        (activity as CHF).back()
+        (activity as LeadController).back()
     }
 }

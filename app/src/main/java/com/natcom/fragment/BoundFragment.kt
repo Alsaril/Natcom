@@ -1,4 +1,4 @@
-package com.rv150.musictransfer.fragment
+package com.natcom.fragment
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,7 +10,9 @@ open class BoundFragment : Fragment() {
     internal var root: View? = null
 
     protected fun initView(root: View?) {
-        this.root = root
+        if (this.root == null) {
+            this.root = root
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

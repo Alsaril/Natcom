@@ -3,7 +3,7 @@ package com.natcom.model
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Contact(val name: String, val phone: String) : Parcelable {
+data class Contact(val name: String, val phone: String?) : Parcelable {
     companion object {
         @JvmField
         val CREATOR = object : Parcelable.Creator<Contact> {

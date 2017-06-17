@@ -8,11 +8,11 @@ data class Lead(val id: Int,
                 val address: String,
                 val apartment: String,
                 val date: String,
-                val mountDate: String,
+                val mountDate: String?,
                 val status: String,
                 val responsible: String,
                 val color: Int,
-                val contacts: List<Contact>) : Parcelable {
+                val contacts: java.util.ArrayList<Contact>) : Parcelable {
 
     companion object {
         @JvmField

@@ -39,7 +39,7 @@ class LoginActivity : AppCompatActivity() {
         editor.putString(PASSWORD_KEY, password.text.toString())
         editor.apply()
 
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, ListActivity::class.java))
         finish()
     }
 }

@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,14 +14,11 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
-import com.natcom.LEAD_KEY
 import com.natcom.R
-import com.natcom.activity.CHF
-import com.natcom.model.Lead
+import com.natcom.activity.LeadController
 import com.natcom.network.CloseResult
 import com.natcom.network.NetworkController
 import com.natcom.network.PictureResult
-import com.rv150.musictransfer.fragment.BoundFragment
 import kotterknife.bindView
 import java.io.File
 
@@ -35,12 +33,11 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
 
     private val TAKE_PICTURE = 1
     private var imageUri: Uri? = null
-    var lead: Lead? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         initView(inflater.inflate(R.layout.close_fragment, container, false))
 
-        lead = arguments.getParcelable<Lead>(LEAD_KEY)
+        (activity as AppCompatActivity).supportActionBar?.title = "Close lead"
 
         NetworkController.pictureCallback = this
         NetworkController.closeCallback = this
@@ -68,7 +65,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
-            NetworkController.picture(lead!!.id, imageUri!!)
+            NetworkController.picture((activity as LeadController).lead()!!.id, imageUri!!)
         }
     }
 
@@ -85,7 +82,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
             Toast.makeText(activity, R.string.empty_fields, Toast.LENGTH_SHORT).show()
             return
         }
-        NetworkController.close(lead!!.id, contract.isChecked, mount.isChecked, comment.text.toString(), date.text.toString())
+        NetworkController.close((activity as LeadController).lead()!!.id, contract.isChecked, mount.isChecked, comment.text.toString(), date.text.toString())
     }
 
     override fun onCloseResult(success: Boolean) {
@@ -94,6 +91,6 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
         } else {
             Toast.makeText(activity, "Close successful!", Toast.LENGTH_SHORT).show()
         }
-        (activity as CHF).back()
+        (activity as LeadController).back()
     }
 }

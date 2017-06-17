@@ -3,12 +3,11 @@ package com.natcom.network
 import android.content.Context
 import android.net.Uri
 import android.preference.PreferenceManager
-import android.util.Log
 import com.google.gson.GsonBuilder
 import com.natcom.LOGIN_KEY
 import com.natcom.MyApp
 import com.natcom.PASSWORD_KEY
-import com.natcom.fragment.ListType
+import com.natcom.activity.ListType
 import com.natcom.model.CloseRequest
 import com.natcom.model.DenyRequest
 import com.natcom.model.Lead
@@ -52,14 +51,25 @@ object NetworkController {
         get
         set
 
-    fun list(type: ListType, param: String? = null) {
-        api.list(type.name.toLowerCase(), param).enqueue(object : Callback<List<Lead>> {
+    var listPerfoming = false
+        get
+        private set
+
+    var listCall: Call<List<Lead>>? = null
+
+    fun list(type: ListType, param: String? = null, reset: Boolean = false) {
+        if (reset) listCall?.cancel()
+        else if (listPerfoming) return
+        listPerfoming = true
+        listCall = api.list(type.name.toLowerCase(), param)
+        listCall?.enqueue(object : Callback<List<Lead>> {
             override fun onFailure(call: Call<List<Lead>>, t: Throwable) {
+                listPerfoming = false
                 listCallback?.onListResult(false)
-                Log.d("TAG", t.toString())
             }
 
             override fun onResponse(call: Call<List<Lead>>, response: Response<List<Lead>>) {
+                listPerfoming = false
                 if (response.code() == 200) {
                     listCallback?.onListResult(true, response.body())
                 } else {
@@ -68,7 +78,6 @@ object NetworkController {
                 if (response.code() == 401) {
                     reset()
                 }
-                Log.d("TAG", response.message())
             }
         })
     }
