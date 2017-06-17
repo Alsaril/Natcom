@@ -37,7 +37,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         initView(inflater.inflate(R.layout.close_fragment, container, false))
 
-        (activity as AppCompatActivity).supportActionBar?.title = "Close lead"
+        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.close_lead)
 
         NetworkController.pictureCallback = this
         NetworkController.closeCallback = this
@@ -73,7 +73,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
         if (!success) {
             Toast.makeText(activity, R.string.error, Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(activity, "POST successful!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, R.string.post_success, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -89,7 +89,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
         if (!success) {
             Toast.makeText(activity, R.string.error, Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(activity, "Close successful!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, R.string.close_success, Toast.LENGTH_SHORT).show()
         }
         (activity as LeadController).back()
     }

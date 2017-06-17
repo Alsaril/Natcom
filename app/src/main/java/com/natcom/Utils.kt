@@ -3,7 +3,6 @@ package com.natcom
 import android.content.Context
 import android.preference.PreferenceManager
 
-val ID_KEY = "IF_KEY"
 val LIST_TYPE_KEY = "LIST_TYPE_KEY"
 val LEAD_KEY = "LEAD_KEY"
 val PARAM_KEY = "PARAM_KEY"

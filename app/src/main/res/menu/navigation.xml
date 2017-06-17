@@ -3,13 +3,13 @@
     <item
         android:id="@+id/today"
         android:icon="@drawable/ic_today_white_24dp"
-        android:title="today" />
+        android:title="@string/today" />
     <item
         android:id="@+id/tomorrow"
         android:icon="@drawable/ic_today_white_24dp"
-        android:title="tomorrow" />
+        android:title="@string/tomorrow" />
     <item
         android:id="@+id/date"
         android:icon="@drawable/ic_today_white_24dp"
-        android:title="date" />
+        android:title="@string/date" />
 </menu>

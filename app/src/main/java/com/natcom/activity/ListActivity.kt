@@ -31,7 +31,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
     var type: ListType? = null
         set(value) {
             field = value
-            supportActionBar?.title = type.toString()
+            supportActionBar?.title = MyApp.instance?.getString(field!!.iname)
         }
     var param: String? = null
 
@@ -57,7 +57,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
             }
             if (type == ListType.DATE) {
                 val date = Calendar.getInstance()
-                DatePickerDialog(this, { view, year, month, day ->
+                DatePickerDialog(this, { _, year, month, day ->
                     run {
                         if (this.type != type) {
                             this.type = type
@@ -180,12 +180,12 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         val itemPosition = list.getChildLayoutPosition(v)
         val item = (list.adapter as ListAdapter?)?.list?.get(itemPosition) ?: return false
 
-        AlertDialog.Builder(this).setMessage("Assign?")
-                .setPositiveButton("Yes", { dialog, id ->
+        AlertDialog.Builder(this).setMessage(R.string.assign)
+                .setPositiveButton(R.string.ok, { _, _ ->
                     NetworkController.assign(item.id)
                 })
-                .setNegativeButton("No", { dialog, id ->
-                }).show()
+                .setNegativeButton(R.string.cancel, { _, _ -> })
+                .show()
         return true
     }
 
@@ -193,14 +193,17 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         if (!success) {
             Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "Assign successful!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.assign_success, Toast.LENGTH_SHORT).show()
             update()
         }
     }
 }
 
-enum class ListType {
-    TODAY, TOMORROW, DATE, SEARCH
+enum class ListType(val iname: Int) {
+    TODAY(R.string.today),
+    TOMORROW(R.string.tomorrow),
+    DATE(R.string.date),
+    SEARCH(R.string.search)
 }
 
 class ListAdapter(list: List<Lead>, private val listActivity: ListActivity) : RecyclerView.Adapter<ListAdapter.MyViewHolder>() {

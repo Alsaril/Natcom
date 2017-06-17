@@ -37,7 +37,7 @@ class LeadFragment : BoundFragment(), DenyResult {
             mount_date.text = it.mountDate
         }
 
-        (activity as AppCompatActivity).supportActionBar?.title = "Lead"
+        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.lead)
 
         NetworkController.denyCallback = this
 
@@ -65,19 +65,21 @@ class LeadFragment : BoundFragment(), DenyResult {
     fun deny() {
         val editText = EditText(activity)
         AlertDialog.Builder(activity)
-                .setMessage("Comment")
-                .setTitle("Deny lead")
+                .setMessage(R.string.comment)
+                .setTitle(R.string.deny_lead)
                 .setView(editText)
-                .setPositiveButton("OK") { _, _ ->
+                .setPositiveButton(R.string.ok) { _, _ ->
                     NetworkController.deny((activity as LeadController).lead()!!.id, editText.text.toString())
-                }.show()
+                }
+                .setNegativeButton(R.string.cancel) { _, _ -> }
+                .show()
     }
 
     override fun onDenyResult(success: Boolean) {
         if (!success) {
             Toast.makeText(activity, R.string.error, Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(activity, "Deny successful!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, R.string.deny_success, Toast.LENGTH_SHORT).show()
         }
         (activity as LeadController).back()
     }
