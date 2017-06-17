@@ -7,12 +7,8 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v4.view.MenuItemCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
-import android.support.v7.widget.Toolbar
+import android.support.v7.widget.*
 import android.view.*
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -23,6 +19,7 @@ import com.natcom.network.ListResult
 import com.natcom.network.NetworkController
 import kotterknife.bindView
 import java.util.*
+
 
 class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClickListener, View.OnLongClickListener {
 
@@ -87,6 +84,9 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         val llm = LinearLayoutManager(this)
         llm.orientation = LinearLayoutManager.VERTICAL
         list.layoutManager = llm
+        val dividerItemDecoration = DividerItemDecoration(list.getContext(),
+                llm.orientation)
+        list.addItemDecoration(dividerItemDecoration)
 
         NetworkController.listCallback = this
         NetworkController.assignCallback = this
@@ -212,6 +212,7 @@ class ListAdapter(list: List<Lead>, private val listActivity: ListActivity) : Re
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val lead = list[position]
+        holder.picture.text = lead.company.subSequence(0, 1)
         holder.company.text = lead.company
         holder.address.text = lead.address
         holder.status.text = lead.status
@@ -230,9 +231,9 @@ class ListAdapter(list: List<Lead>, private val listActivity: ListActivity) : Re
     }
 
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val picture: ImageView = view.findViewById(R.id.picture) as ImageView
-        val company: TextView = view.findViewById(R.id.company) as TextView
-        val address: TextView = view.findViewById(R.id.address) as TextView
-        val status: TextView = view.findViewById(R.id.status) as TextView
+        val picture = view.findViewById(R.id.picture) as TextView
+        val company = view.findViewById(R.id.company) as TextView
+        val address = view.findViewById(R.id.address) as TextView
+        val status = view.findViewById(R.id.status) as TextView
     }
 }
