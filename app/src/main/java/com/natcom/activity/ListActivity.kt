@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.v4.content.ContextCompat
 import android.support.v4.view.MenuItemCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -61,15 +62,19 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
                         if (this.type != type) {
                             this.type = type
                             this.param = "$year.$month.$day"
+                            update(true)
+                        } else {
+                            update()
                         }
-                        update()
                     }
                 }, date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH)).show()
             } else {
                 if (this.type != type) {
                     this.type = type
+                    update(true)
+                } else {
+                    update()
                 }
-                update()
             }
             true
         }
@@ -141,11 +146,11 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         startActivity(intent)
     }
 
-    fun update() {
+    fun update(force: Boolean = false) {
         if (type == ListType.TODAY || type == ListType.TOMORROW) {
-            NetworkController.list(type!!)
+            NetworkController.list(type!!, reset = force)
         } else if (param != null) {
-            NetworkController.list(type!!, param!!)
+            NetworkController.list(type!!, param!!, force)
         } else {
             return
         }
@@ -213,17 +218,16 @@ class ListAdapter(list: List<Lead>, private val listActivity: ListActivity) : Re
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val lead = list[position]
         holder.picture.text = lead.company.subSequence(0, 1)
+        holder.picture.setTextColor(ContextCompat.getColor(listActivity, when (lead.company[0]) {
+            'Б' -> R.color.b
+            'М' -> R.color.m
+            'Н' -> R.color.n
+            else -> R.color.black
+        }))
         holder.company.text = lead.company
         holder.address.text = lead.address
         holder.status.text = lead.status
-
-        /*val photos = service.getPhotos()
-        if (!photos.isEmpty()) {
-            val mainPhotoURL = NetHelper.BASE_URL + photos.get(0)
-            Glide.with(feedFragment).load(mainPhotoURL).centerCrop().into(holder.photo)
-        } else {
-            Glide.with(feedFragment).load(R.drawable.default_pic).centerCrop().into(holder.photo)
-        }*/
+        holder.responsible.text = lead.responsible
     }
 
     override fun getItemCount(): Int {
@@ -235,5 +239,6 @@ class ListAdapter(list: List<Lead>, private val listActivity: ListActivity) : Re
         val company = view.findViewById(R.id.company) as TextView
         val address = view.findViewById(R.id.address) as TextView
         val status = view.findViewById(R.id.status) as TextView
+        val responsible = view.findViewById(R.id.responsible) as TextView
     }
 }
