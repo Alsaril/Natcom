@@ -14,9 +14,10 @@ import com.natcom.R
 import com.natcom.activity.LeadController
 import com.natcom.network.DenyResult
 import com.natcom.network.NetworkController
+import com.natcom.network.ShiftResult
 import kotterknife.bindView
 
-class LeadFragment : BoundFragment(), DenyResult {
+class LeadFragment : BoundFragment(), ShiftResult, DenyResult {
     val company by bindView<TextView>(R.id.company)
     val address by bindView<TextView>(R.id.address)
     val date by bindView<TextView>(R.id.date)
@@ -39,6 +40,7 @@ class LeadFragment : BoundFragment(), DenyResult {
 
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.lead)
 
+        NetworkController.shiftCallback = this
         NetworkController.denyCallback = this
 
         close.setOnClickListener { close() }
@@ -51,6 +53,7 @@ class LeadFragment : BoundFragment(), DenyResult {
     override fun onDestroyView() {
         super.onDestroyView()
 
+        NetworkController.shiftCallback = null
         NetworkController.denyCallback = null
     }
 
@@ -59,17 +62,35 @@ class LeadFragment : BoundFragment(), DenyResult {
     }
 
     fun shift() {
-        TODO("Not implemented")
+        AlertDialog.Builder(activity)
+                .setTitle(R.string.shift_lead)
+                .setView(R.layout.shift_dialog)
+                .setPositiveButton(R.string.ok) { d, which ->
+                    val dialog = d as AlertDialog
+                    val date = (dialog.findViewById(R.id.date) as EditText).text.toString()
+                    val text = (dialog.findViewById(R.id.comment) as EditText).text.toString()
+                    NetworkController.shift((activity as LeadController).lead()!!.id, date, text)
+                }
+                .setNegativeButton(R.string.cancel) { _, _ -> }
+                .show()
+    }
+
+    override fun onShiftResult(success: Boolean) {
+        if (!success) {
+            Toast.makeText(activity, R.string.error, Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(activity, R.string.shift_success, Toast.LENGTH_SHORT).show()
+        }
+        (activity as LeadController).back()
     }
 
     fun deny() {
-        val editText = EditText(activity)
         AlertDialog.Builder(activity)
-                .setMessage(R.string.comment)
                 .setTitle(R.string.deny_lead)
-                .setView(editText)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    NetworkController.deny((activity as LeadController).lead()!!.id, editText.text.toString())
+                .setView(R.layout.deny_dialog)
+                .setPositiveButton(R.string.ok) { dialog, which ->
+                    val text = ((dialog as AlertDialog).findViewById(R.id.comment) as EditText).text.toString()
+                    NetworkController.deny((activity as LeadController).lead()!!.id, text)
                 }
                 .setNegativeButton(R.string.cancel) { _, _ -> }
                 .show()

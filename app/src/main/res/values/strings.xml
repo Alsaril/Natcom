@@ -26,4 +26,6 @@
     <string name="close_lead">Завершить замер</string>
     <string name="post_success">Картинка загружена</string>
     <string name="close_success">Замер завершен</string>
+    <string name="shift_lead">Сдвинуть замер</string>
+    <string name="shift_success">Сдвиг завершен</string>
 </resources>

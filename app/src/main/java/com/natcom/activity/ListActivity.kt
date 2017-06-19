@@ -84,7 +84,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
             param = it.getString(PARAM_KEY)
         }
 
-        if (type == null) type = ListType.TODAY
+        type = type ?: ListType.TODAY
 
         val llm = LinearLayoutManager(this)
         llm.orientation = LinearLayoutManager.VERTICAL
@@ -128,12 +128,11 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         MenuItemCompat.setOnActionExpandListener(searchMenuItem, object : MenuItemCompat.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
                 type = ListType.SEARCH
-                Toast.makeText(this@ListActivity, "SEARCH", Toast.LENGTH_SHORT).show()
                 return true
             }
 
             override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
-                Toast.makeText(this@ListActivity, "UNSEARCH", Toast.LENGTH_SHORT).show()
+                //May be to restore type and param
                 return true
             }
         })

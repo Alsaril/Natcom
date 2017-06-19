@@ -11,6 +11,7 @@ import com.natcom.activity.ListType
 import com.natcom.model.CloseRequest
 import com.natcom.model.DenyRequest
 import com.natcom.model.Lead
+import com.natcom.model.ShiftRequest
 import com.natcom.reset
 import okhttp3.Credentials
 import okhttp3.MediaType
@@ -64,6 +65,7 @@ object NetworkController {
         listCall = api.list(type.name.toLowerCase(), param)
         listCall?.enqueue(object : Callback<List<Lead>> {
             override fun onFailure(call: Call<List<Lead>>, t: Throwable) {
+                if (call.isCanceled) return
                 listPerfoming = false
                 listCallback?.onListResult(false)
             }
@@ -120,6 +122,29 @@ object NetworkController {
                     closeCallback?.onCloseResult(true)
                 } else {
                     closeCallback?.onCloseResult(false)
+                }
+                if (response.code() == 401) {
+                    reset()
+                }
+            }
+        })
+    }
+
+    var shiftCallback: ShiftResult? = null
+        get
+        set
+
+    fun shift(id: Int, date: String, comment: String) {
+        api.shift(id, ShiftRequest(date, comment)).enqueue(object : Callback<Void> {
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                shiftCallback?.onShiftResult(false)
+            }
+
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.code() == 200) {
+                    shiftCallback?.onShiftResult(true)
+                } else {
+                    shiftCallback?.onShiftResult(false)
                 }
                 if (response.code() == 401) {
                     reset()
@@ -185,6 +210,10 @@ interface PictureResult {
 
 interface CloseResult {
     fun onCloseResult(success: Boolean)
+}
+
+interface ShiftResult {
+    fun onShiftResult(success: Boolean)
 }
 
 interface DenyResult {

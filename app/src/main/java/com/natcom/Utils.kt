@@ -10,15 +10,13 @@ val LOGIN_KEY = "LOGIN_KEY"
 val PASSWORD_KEY = "PASSWORD_KEY"
 val FRAGMENT_TAG = "FRAGMENT_TAG"
 
-fun auth(context: Context): Boolean {
-    val sp = PreferenceManager.getDefaultSharedPreferences(context)
-    return sp.contains(LOGIN_KEY)
-}
+fun auth(context: Context) = PreferenceManager.getDefaultSharedPreferences(context).contains(LOGIN_KEY)
 
 fun reset() {
-    val context = MyApp.instance
-    val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
-    editor.remove(LOGIN_KEY)
-    editor.remove(PASSWORD_KEY)
-    editor.apply()
+    PreferenceManager
+            .getDefaultSharedPreferences(MyApp.instance)
+            .edit()
+            .remove(LOGIN_KEY)
+            .remove(PASSWORD_KEY)
+            .apply()
 }

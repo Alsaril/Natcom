@@ -24,17 +24,17 @@ class LeadActivity : AppCompatActivity(), LeadController {
         val mActionBarToolbar = findViewById(R.id.toolbar_actionbar) as Toolbar
         setSupportActionBar(mActionBarToolbar)
 
-        lead = intent.getParcelableExtra<Lead>(LEAD_KEY) ?: savedInstanceState?.getParcelable(LEAD_KEY)
-
-        if (lead == null) {
+        lead = intent.getParcelableExtra<Lead>(LEAD_KEY)
+                ?: savedInstanceState?.getParcelable(LEAD_KEY)
+                ?: run {
             finish()
             return
         }
 
-        if (savedInstanceState == null) {
-            changeFragment(LeadFragment(), false)
-        } else {
+        savedInstanceState?.let {
             fragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
+        } ?: run {
+            changeFragment(LeadFragment(), false)
         }
     }
 
