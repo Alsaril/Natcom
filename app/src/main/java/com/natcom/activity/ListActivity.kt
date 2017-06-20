@@ -3,6 +3,7 @@ package com.natcom.activity
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.MenuItemCompat
@@ -13,12 +14,14 @@ import android.view.*
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import com.google.gson.reflect.TypeToken
 import com.natcom.*
 import com.natcom.model.Lead
 import com.natcom.network.AssignResult
 import com.natcom.network.ListResult
 import com.natcom.network.NetworkController
 import kotterknife.bindView
+import java.lang.reflect.Type
 import java.util.*
 
 
@@ -158,15 +161,37 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         error.visibility = View.GONE
     }
 
-    override fun onListResult(success: Boolean, list: List<Lead>?) {
+    override fun onListResult(type: ListType, success: Boolean, list: List<Lead>?) {
         progress.visibility = View.GONE
-        if (success && list != null) {
-            this.list.visibility = View.VISIBLE
-            this.list.swapAdapter(ListAdapter(list, this), false)
-        } else {
+        val newList: List<Lead>?
+        if (!success) {
             Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show()
-            error.visibility = View.VISIBLE
+            newList = loadList(type)
+        } else {
+            saveList(type, list)
+            newList = list
         }
+
+        newList?.let {
+            this.list.visibility = View.VISIBLE
+            this.list.swapAdapter(ListAdapter(newList, this), false)
+        }
+    }
+
+    fun saveList(type: ListType, list: List<Lead>?) {
+        if (list == null) return
+        val value = gson.toJson(list)
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .edit()
+                .putString(LIST_KEY + type.toString(), value)
+                .apply()
+    }
+
+    fun loadList(type: ListType): List<Lead>? {
+        val sp = PreferenceManager.getDefaultSharedPreferences(this)
+        if (!sp.contains(LIST_KEY + type.toString())) return null
+        val t: Type = object : TypeToken<List<Lead>>() {}.type
+        return gson.fromJson(sp.getString(LIST_KEY + type.toString(), ""), t)
     }
 
     override fun onClick(v: View?) {

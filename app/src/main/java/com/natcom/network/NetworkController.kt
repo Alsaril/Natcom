@@ -67,15 +67,15 @@ object NetworkController {
             override fun onFailure(call: Call<List<Lead>>, t: Throwable) {
                 if (call.isCanceled) return
                 listPerfoming = false
-                listCallback?.onListResult(false)
+                listCallback?.onListResult(type, false)
             }
 
             override fun onResponse(call: Call<List<Lead>>, response: Response<List<Lead>>) {
                 listPerfoming = false
                 if (response.code() == 200) {
-                    listCallback?.onListResult(true, response.body())
+                    listCallback?.onListResult(type, true, response.body())
                 } else {
-                    listCallback?.onListResult(false)
+                    listCallback?.onListResult(type, false)
                 }
                 if (response.code() == 401) {
                     reset()
@@ -201,7 +201,7 @@ object NetworkController {
 }
 
 interface ListResult {
-    fun onListResult(success: Boolean, list: List<Lead>? = null)
+    fun onListResult(type: ListType, success: Boolean, list: List<Lead>? = null)
 }
 
 interface PictureResult {
