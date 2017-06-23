@@ -1,11 +1,15 @@
 package com.natcom.fragment
 
+import android.Manifest
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
@@ -19,8 +23,10 @@ import com.natcom.activity.LeadController
 import com.natcom.network.CloseResult
 import com.natcom.network.NetworkController
 import com.natcom.network.PictureResult
+import com.natcom.prepareDate
 import kotterknife.bindView
 import java.io.File
+import java.util.*
 
 
 class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
@@ -44,6 +50,22 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
         picture.setOnClickListener { picture() }
         save.setOnClickListener { save() }
 
+        date.setOnClickListener {
+            val nDate = Calendar.getInstance()
+            DatePickerDialog(activity, { _, year, month, day ->
+                date.setText(prepareDate(year, month, day))
+            }, nDate.get(Calendar.YEAR), nDate.get(Calendar.MONTH), nDate.get(Calendar.DAY_OF_MONTH)).show()
+        }
+
+        mount.setOnCheckedChangeListener { buttonView, isChecked ->
+            run {
+                if (!contract.isChecked && isChecked) {
+                    Toast.makeText(activity, "Необходимо заключить договор", Toast.LENGTH_SHORT).show()
+                    mount.isChecked = false
+                }
+            }
+        }
+
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
@@ -53,7 +75,33 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
         NetworkController.closeCallback = null
     }
 
+    val REQUEST_CODE = 1212
+
+    private fun checkAccess() = ContextCompat.checkSelfPermission(context,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestAccess() {
+        if (!checkAccess()) {
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    REQUEST_CODE)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        if (requestCode == REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                picture()
+            } else {
+                Toast.makeText(activity, "123", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     fun picture() {
+        if (!checkAccess()) {
+            requestAccess()
+            return
+        }
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         val photo = File(Environment.getExternalStorageDirectory(), "Pic.jpg")
         intent.putExtra(MediaStore.EXTRA_OUTPUT,
@@ -78,7 +126,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
     }
 
     fun save() {
-        if (comment.text.isEmpty() || date.text.isEmpty()) {
+        if (comment.text.isEmpty() || (date.text.isEmpty() && mount.isChecked)) {
             Toast.makeText(activity, R.string.empty_fields, Toast.LENGTH_SHORT).show()
             return
         }

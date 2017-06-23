@@ -13,10 +13,7 @@ import com.natcom.model.DenyRequest
 import com.natcom.model.Lead
 import com.natcom.model.ShiftRequest
 import com.natcom.reset
-import okhttp3.Credentials
-import okhttp3.MediaType
-import okhttp3.OkHttpClient
-import okhttp3.RequestBody
+import okhttp3.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,7 +23,7 @@ import java.io.File
 
 object NetworkController {
 
-    val BASE_URL = "http://188.225.77.144/"
+    val BASE_URL = "http://192.168.1.48:5000/"
 
     private val retrofit: Retrofit by lazy { init(MyApp.instance!!) }
     private val api by lazy { retrofit.create(API::class.java) }
@@ -89,7 +86,7 @@ object NetworkController {
         set
 
     fun picture(id: Int, uri: Uri) {
-        api.upload(id, RequestBody.create(MediaType.parse("image/*"), File(uri.path))).enqueue(object : Callback<Void> {
+        api.upload(id, MultipartBody.Part.createFormData("file", "file", RequestBody.create(MediaType.parse("image/*"), File(uri.path)))).enqueue(object : Callback<Void> {
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 pictureCallback?.onPictureResult(false)
             }

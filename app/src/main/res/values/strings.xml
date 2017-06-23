@@ -6,12 +6,13 @@
     <string name="empty_fields">Пустые поля</string>
     <string name="search">Поиск</string>
     <string name="close">Завершить</string>
-    <string name="shift">Передвинуть</string>
+    <string name="shift">Перенести</string>
     <string name="deny">Отклонить</string>
-    <string name="cotract">Договор заключен</string>
+    <string name="contract">Договор заключен</string>
     <string name="mount">Монтаж назначен</string>
     <string name="comment">Комментарий</string>
     <string name="date">Дата</string>
+    <string name="mount_date">Дата монтажа</string>
     <string name="picture">Картинка</string>
     <string name="save">Сохранить</string>
     <string name="deny_lead">Отклонить замер</string>
@@ -26,6 +27,8 @@
     <string name="close_lead">Завершить замер</string>
     <string name="post_success">Картинка загружена</string>
     <string name="close_success">Замер завершен</string>
-    <string name="shift_lead">Сдвинуть замер</string>
-    <string name="shift_success">Сдвиг завершен</string>
+    <string name="shift_lead">Перенести замер</string>
+    <string name="shift_success">Перенос завершен</string>
+    <string name="empty_list">Список пуст</string>
+    <string name="sure">Уверен?</string>
 </resources>

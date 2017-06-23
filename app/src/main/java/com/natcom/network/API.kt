@@ -4,7 +4,7 @@ import com.natcom.model.CloseRequest
 import com.natcom.model.DenyRequest
 import com.natcom.model.Lead
 import com.natcom.model.ShiftRequest
-import okhttp3.RequestBody
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -17,7 +17,7 @@ interface API {
 
     @Multipart
     @POST("/lead/upload/{id}")
-    fun upload(@Path("id") id: Int, @Part file: RequestBody): Call<Void>
+    fun upload(@Path("id") id: Int, @Part file: MultipartBody.Part): Call<Void>
 
     @POST("/lead/close/{id}")
     fun close(@Path("id") id: Int, @Body request: CloseRequest): Call<Void>

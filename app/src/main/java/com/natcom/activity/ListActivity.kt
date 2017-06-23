@@ -30,13 +30,14 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
     val navigation by bindView<BottomNavigationView>(R.id.navigation)
     val list by bindView<RecyclerView>(R.id.list)
     val progress by bindView<ProgressBar>(R.id.progress)
-    val error by bindView<TextView>(R.id.error)
+    val empty_list by bindView<TextView>(R.id.empty_list)
     var type: ListType? = null
         set(value) {
             field = value
             supportActionBar?.title = MyApp.instance?.getString(field!!.iname)
         }
     var param: String? = null
+    var searchMenuItem: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,17 +59,16 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
                 R.id.tomorrow -> ListType.TOMORROW
                 else -> ListType.DATE
             }
+
+            searchMenuItem?.collapseActionView()
+
             if (type == ListType.DATE) {
                 val date = Calendar.getInstance()
                 DatePickerDialog(this, { _, year, month, day ->
                     run {
-                        if (this.type != type) {
-                            this.type = type
-                            this.param = "$year.$month.$day"
-                            update(true)
-                        } else {
-                            update()
-                        }
+                        this.type = ListType.DATE
+                        this.param = prepareDate(year, month, day)
+                        update(true)
                     }
                 }, date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH)).show()
             } else {
@@ -117,9 +117,9 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_activity_main, menu)
-        val searchMenuItem = menu.findItem(R.id.action_search)
-        val mSearchView = searchMenuItem.actionView as SearchView
-        mSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        searchMenuItem = menu.findItem(R.id.action_search)
+        val searchView = searchMenuItem?.actionView as SearchView
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 param = query
                 update()
@@ -145,7 +145,14 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
     fun openLead(lead: Lead) {
         val intent = Intent(this, LeadActivity::class.java)
         intent.putExtra(LEAD_KEY, lead)
-        startActivity(intent)
+        startActivityForResult(intent, REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE && data?.action.equals(UPDATE_LIST)) {
+            update(force = true)
+        }
     }
 
     fun update(force: Boolean = false) {
@@ -157,8 +164,8 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
             return
         }
         progress.visibility = View.VISIBLE
+        empty_list.visibility = View.GONE
         list.visibility = View.GONE
-        error.visibility = View.GONE
     }
 
     override fun onListResult(type: ListType, success: Boolean, list: List<Lead>?) {
@@ -173,13 +180,19 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         }
 
         newList?.let {
-            this.list.visibility = View.VISIBLE
-            this.list.swapAdapter(ListAdapter(newList, this), false)
+            if (newList.isEmpty()) {
+                empty_list.visibility = View.VISIBLE
+                this.list.visibility = View.GONE
+            } else {
+                empty_list.visibility = View.GONE
+                this.list.visibility = View.VISIBLE
+                this.list.swapAdapter(ListAdapter(newList, this), false)
+            }
         }
     }
 
     fun saveList(type: ListType, list: List<Lead>?) {
-        if (list == null) return
+        if (list == null || type == ListType.DATE || type == ListType.SEARCH) return
         val value = gson.toJson(list)
         PreferenceManager.getDefaultSharedPreferences(this)
                 .edit()
@@ -255,6 +268,12 @@ class ListAdapter(list: List<Lead>, private val listActivity: ListActivity) : Re
         holder.address.text = lead.address
         holder.status.text = lead.status
         holder.responsible.text = lead.responsible
+        holder.responsible.setTextColor(ContextCompat.getColor(listActivity, when (lead.color) {
+            0 -> R.color.gray
+            1 -> R.color.green
+            2 -> R.color.red
+            else -> R.color.black
+        }))
     }
 
     override fun getItemCount(): Int {
