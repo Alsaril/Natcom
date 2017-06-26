@@ -60,7 +60,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
         mount.setOnCheckedChangeListener { buttonView, isChecked ->
             run {
                 if (!contract.isChecked && isChecked) {
-                    Toast.makeText(activity, "Необходимо заключить договор", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, R.string.need_contract, Toast.LENGTH_SHORT).show()
                     mount.isChecked = false
                 }
             }

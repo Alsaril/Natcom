@@ -31,4 +31,5 @@
     <string name="shift_success">Перенос завершен</string>
     <string name="empty_list">Список пуст</string>
     <string name="sure">Уверен?</string>
+    <string name="need_contract">Необходимо заключить договор</string>
 </resources>
