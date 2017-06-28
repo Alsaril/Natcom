@@ -10,20 +10,19 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.Toast
 import com.natcom.R
 import com.natcom.activity.LeadController
 import com.natcom.network.CloseResult
 import com.natcom.network.NetworkController
 import com.natcom.network.PictureResult
 import com.natcom.prepareDate
+import com.natcom.toast
 import kotterknife.bindView
 import java.io.File
 import java.util.*
@@ -40,13 +39,16 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
     private val TAKE_PICTURE = 1
     private var imageUri: Uri? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        initView(inflater.inflate(R.layout.close_fragment, container, false))
+    private lateinit var leadController: LeadController
 
-        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.close_lead)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        initFragment(inflater.inflate(R.layout.close_fragment, container, false), R.string.close_lead)
+
+        leadController = activity as LeadController
 
         NetworkController.pictureCallback = this
         NetworkController.closeCallback = this
+
         picture.setOnClickListener { picture() }
         save.setOnClickListener { save() }
 
@@ -57,12 +59,10 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
             }, nDate.get(Calendar.YEAR), nDate.get(Calendar.MONTH), nDate.get(Calendar.DAY_OF_MONTH)).show()
         }
 
-        mount.setOnCheckedChangeListener { buttonView, isChecked ->
-            run {
-                if (!contract.isChecked && isChecked) {
-                    Toast.makeText(activity, R.string.need_contract, Toast.LENGTH_SHORT).show()
-                    mount.isChecked = false
-                }
+        mount.setOnCheckedChangeListener { _, isChecked ->
+            if (!contract.isChecked && isChecked) {
+                toast(R.string.need_contract)
+                mount.isChecked = false
             }
         }
 
@@ -71,6 +71,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         NetworkController.pictureCallback = null
         NetworkController.closeCallback = null
     }
@@ -91,8 +92,6 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
         if (requestCode == REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 picture()
-            } else {
-                Toast.makeText(activity, "123", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -112,33 +111,28 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
-            NetworkController.picture((activity as LeadController).lead()!!.id, imageUri!!)
+        imageUri?.let {
+            if (requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
+                NetworkController.picture(leadController.lead().id, it)
+            }
         }
     }
 
     override fun onPictureResult(success: Boolean) {
-        if (!success) {
-            Toast.makeText(activity, R.string.error, Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(activity, R.string.post_success, Toast.LENGTH_SHORT).show()
-        }
+        toast(if (!success) R.string.error else R.string.post_success)
     }
 
     fun save() {
         if (comment.text.isEmpty() || (date.text.isEmpty() && mount.isChecked)) {
-            Toast.makeText(activity, R.string.empty_fields, Toast.LENGTH_SHORT).show()
+            toast(R.string.empty_fields)
             return
         }
-        NetworkController.close((activity as LeadController).lead()!!.id, contract.isChecked, mount.isChecked, comment.text.toString(), date.text.toString())
+        NetworkController.close(leadController.lead().id,
+                contract.isChecked, mount.isChecked, comment.text.toString(), date.text.toString())
     }
 
     override fun onCloseResult(success: Boolean) {
-        if (!success) {
-            Toast.makeText(activity, R.string.error, Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(activity, R.string.close_success, Toast.LENGTH_SHORT).show()
-        }
-        (activity as LeadController).back()
+        toast(if (!success) R.string.error else R.string.close_success)
+        leadController.back()
     }
 }

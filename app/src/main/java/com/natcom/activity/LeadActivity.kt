@@ -14,7 +14,7 @@ import com.natcom.fragment.ShiftLeadFragment
 import com.natcom.model.Lead
 
 class LeadActivity : AppCompatActivity(), LeadController {
-    var lead: Lead? = null
+    lateinit var lead: Lead
     var fragment: Fragment? = null
 
     override fun lead() = lead
@@ -70,6 +70,10 @@ class LeadActivity : AppCompatActivity(), LeadController {
         changeFragment(ShiftLeadFragment())
     }
 
+    override fun pictures() {
+
+    }
+
     override fun back() {
         supportFragmentManager.popBackStack()
         supportFragmentManager.popBackStack()
@@ -77,9 +81,10 @@ class LeadActivity : AppCompatActivity(), LeadController {
 }
 
 interface LeadController {
-    fun lead(): Lead?
+    fun lead(): Lead
     fun denyLead()
     fun closeLead()
     fun shiftLead()
+    fun pictures()
     fun back()
 }

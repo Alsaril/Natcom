@@ -2,9 +2,15 @@ package com.natcom
 
 import android.content.Context
 import android.preference.PreferenceManager
+import android.support.annotation.StringRes
+import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
+import android.util.TypedValue
+import android.widget.Toast
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 val LIST_TYPE_KEY = "LIST_TYPE_KEY"
 val LEAD_KEY = "LEAD_KEY"
@@ -53,4 +59,15 @@ fun prepareDate(year: Int, month: Int, day: Int): String {
     val c = Calendar.getInstance()
     c.set(year, month, day, 0, 0)
     return SimpleDateFormat("yyyy-MM-dd 00:00:00", Locale.getDefault()).format(c.time)
+}
+
+fun sp2px(sp: Int, context: Context)
+        = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp.toFloat(), context.resources.displayMetrics)
+
+fun Fragment.toast(@StringRes text: Int) {
+    Toast.makeText(activity, text, Toast.LENGTH_SHORT).show()
+}
+
+fun AppCompatActivity.toast(@StringRes text: Int) {
+    Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
 }

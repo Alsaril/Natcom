@@ -13,7 +13,7 @@
     <string name="comment">Комментарий</string>
     <string name="date">Дата</string>
     <string name="mount_date">Дата монтажа</string>
-    <string name="picture">Картинка</string>
+    <string name="picture">Замерочный лист</string>
     <string name="save">Сохранить</string>
     <string name="deny_lead">Отклонить замер</string>
     <string name="ok">OK</string>
@@ -32,4 +32,5 @@
     <string name="empty_list">Список пуст</string>
     <string name="sure">Уверен?</string>
     <string name="need_contract">Необходимо заключить договор</string>
+    <string name="pictures">Картинки</string>
 </resources>

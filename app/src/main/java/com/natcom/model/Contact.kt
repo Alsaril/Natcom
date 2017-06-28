@@ -12,7 +12,7 @@ data class Contact(val name: String, val phones: ArrayList<String>) : Parcelable
             override fun createFromParcel(source: Parcel): Contact {
                 val name = source.readString()
                 val phones = ArrayList<String>()
-                source.readList(phones, null)
+                source.readStringList(phones)
                 return Contact(name, phones)
             }
         }
@@ -20,7 +20,7 @@ data class Contact(val name: String, val phones: ArrayList<String>) : Parcelable
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(name)
-        dest.writeList(phones)
+        dest.writeStringList(phones)
     }
 
     override fun describeContents() = 0

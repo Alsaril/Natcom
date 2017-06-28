@@ -23,9 +23,9 @@ import java.io.File
 
 object NetworkController {
 
-    val BASE_URL = "http://192.168.1.48:5000/"
+    val BASE_URL = "http://188.225.77.144/"
 
-    private val retrofit: Retrofit by lazy { init(MyApp.instance!!) }
+    private val retrofit: Retrofit by lazy { init(MyApp.instance) }
     private val api by lazy { retrofit.create(API::class.java) }
 
     private fun init(context: Context): Retrofit {

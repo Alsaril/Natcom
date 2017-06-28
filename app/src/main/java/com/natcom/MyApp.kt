@@ -10,7 +10,7 @@ class MyApp : Application() {
     }
 
     companion object {
-        var instance: Context? = null
+        lateinit var instance: Context
             get
             private set
     }

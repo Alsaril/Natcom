@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text">16sp</dimen>
+    <dimen name="phone">20sp</dimen>
+    <dimen name="name">20sp</dimen>
+    <dimen name="divider">8dp</dimen>
+    <dimen name="space">4dp</dimen>
+    <dimen name="list">8dp</dimen>
+</resources>

@@ -4,20 +4,15 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
-import com.natcom.R
-import com.natcom.REQUEST_CODE
-import com.natcom.UPDATE_LIST
+import com.natcom.*
 import com.natcom.activity.LeadController
 import com.natcom.network.NetworkController
 import com.natcom.network.ShiftResult
-import com.natcom.prepareDate
 import kotterknife.bindView
 import java.util.*
 
@@ -29,11 +24,10 @@ class ShiftLeadFragment : BoundFragment(), ShiftResult {
     val cancel by bindView<Button>(R.id.cancel)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        initView(inflater.inflate(R.layout.shift_fragment, container, false))
-
-        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.shift_lead)
+        initFragment(inflater.inflate(R.layout.shift_fragment, container, false), R.string.shift_lead)
 
         NetworkController.shiftCallback = this
+
         date.setOnClickListener {
             val nDate = Calendar.getInstance()
             DatePickerDialog(activity, { _, year, month, day ->
@@ -48,14 +42,15 @@ class ShiftLeadFragment : BoundFragment(), ShiftResult {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         NetworkController.shiftCallback = null
     }
 
     override fun onShiftResult(success: Boolean) {
         if (!success) {
-            Toast.makeText(activity, R.string.error, Toast.LENGTH_SHORT).show()
+            toast(R.string.error)
         } else {
-            Toast.makeText(activity, R.string.shift_success, Toast.LENGTH_SHORT).show()
+            toast(R.string.shift_success)
             activity.setResult(REQUEST_CODE, Intent(UPDATE_LIST))
             activity.finish()
         }
@@ -63,14 +58,14 @@ class ShiftLeadFragment : BoundFragment(), ShiftResult {
 
     fun save() {
         if (comment.text.isEmpty() || date.text.isEmpty()) {
-            Toast.makeText(activity, R.string.empty_fields, Toast.LENGTH_SHORT).show()
+            toast(R.string.empty_fields)
             return
         }
 
         AlertDialog.Builder(activity)
                 .setTitle(R.string.sure)
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    NetworkController.shift((activity as LeadController).lead()!!.id, date.text.toString(), comment.text.toString())
+                    NetworkController.shift((activity as LeadController).lead().id, date.text.toString(), comment.text.toString())
                 }
                 .setNegativeButton(R.string.cancel) { _, _ -> }
                 .show()

@@ -13,28 +13,33 @@ data class Lead(val id: Int,
                 val responsible: String,
                 val color: Int,
                 val editable: Int,
-                val contacts: java.util.ArrayList<Contact>) : Parcelable {
+                val images: ArrayList<String>,
+                val contacts: ArrayList<Contact>) : Parcelable {
 
     companion object {
+        @Suppress("unused")
         @JvmField
         val CREATOR = object : Parcelable.Creator<Lead> {
             override fun newArray(size: Int): Array<Lead?> = arrayOfNulls(size)
 
             override fun createFromParcel(source: Parcel): Lead {
                 with(source) {
-                    val id = readInt()
-                    val company = readString()
-                    val address = readString()
-                    val apartment = readString()
-                    val date = readString()
-                    val mountDate = readString()
-                    val status = readString()
-                    val responsible = readString()
-                    val color = readInt()
-                    val editable = readInt()
-                    val contacts = java.util.ArrayList<Contact>()
+                    val pictures = ArrayList<String>()
+                    val contacts = ArrayList<Contact>()
+                    readStringList(pictures)
                     readTypedList<Contact>(contacts, Contact.CREATOR)
-                    return Lead(id, company, address, apartment, date, mountDate, status, responsible, color, editable, contacts)
+                    return Lead(readInt(),
+                            readString(),
+                            readString(),
+                            readString(),
+                            readString(),
+                            readString(),
+                            readString(),
+                            readString(),
+                            readInt(),
+                            readInt(),
+                            pictures,
+                            contacts)
                 }
             }
         }
@@ -42,6 +47,8 @@ data class Lead(val id: Int,
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         with(dest) {
+            writeStringList(images)
+            writeTypedList(contacts)
             writeInt(id)
             writeString(company)
             writeString(address)
@@ -52,7 +59,6 @@ data class Lead(val id: Int,
             writeString(responsible)
             writeInt(color)
             writeInt(editable)
-            writeTypedList(contacts)
         }
     }
 

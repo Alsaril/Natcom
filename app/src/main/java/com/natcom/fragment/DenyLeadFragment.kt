@@ -3,7 +3,6 @@ package com.natcom.fragment
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,9 +24,7 @@ class DenyLeadFragment : BoundFragment(), DenyResult {
     val cancel by bindView<Button>(R.id.cancel)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        initView(inflater.inflate(R.layout.deny_fragment, container, false))
-
-        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.deny_lead)
+        initFragment(inflater.inflate(R.layout.deny_fragment, container, false), R.string.deny_lead)
 
         NetworkController.denyCallback = this
         ok.setOnClickListener { save() }
@@ -60,7 +57,7 @@ class DenyLeadFragment : BoundFragment(), DenyResult {
         AlertDialog.Builder(activity)
                 .setTitle(R.string.sure)
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    NetworkController.deny((activity as LeadController).lead()!!.id, comment.text.toString())
+                    NetworkController.deny((activity as LeadController).lead().id, comment.text.toString())
                 }
                 .setNegativeButton(R.string.cancel) { _, _ -> }
                 .show()

@@ -13,7 +13,6 @@ import android.support.v7.widget.*
 import android.view.*
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import com.google.gson.reflect.TypeToken
 import com.natcom.*
 import com.natcom.model.Lead
@@ -34,7 +33,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
     var type: ListType? = null
         set(value) {
             field = value
-            supportActionBar?.title = MyApp.instance?.getString(field!!.iname)
+            supportActionBar?.title = MyApp.instance.getString(field!!.iname)
         }
     var param: String? = null
     var searchMenuItem: MenuItem? = null
@@ -104,6 +103,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
 
     override fun onDestroy() {
         super.onDestroy()
+
         NetworkController.listCallback = null
         NetworkController.assignCallback = null
     }
@@ -134,10 +134,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
                 return true
             }
 
-            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
-                //May be to restore type and param
-                return true
-            }
+            override fun onMenuItemActionCollapse(item: MenuItem?) = true
         })
         return true
     }
@@ -156,12 +153,12 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
     }
 
     fun update(force: Boolean = false) {
-        if (type == ListType.TODAY || type == ListType.TOMORROW) {
-            NetworkController.list(type!!, reset = force)
-        } else if (param != null) {
-            NetworkController.list(type!!, param!!, force)
-        } else {
-            return
+        type?.let {
+            if (it == ListType.TODAY || it == ListType.TOMORROW) {
+                NetworkController.list(it, reset = force)
+            } else {
+                param?.let { p -> NetworkController.list(it, p, force) } ?: run { return }
+            }
         }
         progress.visibility = View.VISIBLE
         empty_list.visibility = View.GONE
@@ -172,7 +169,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         progress.visibility = View.GONE
         val newList: List<Lead>?
         if (!success) {
-            Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show()
+            toast(R.string.error)
             newList = loadList(type)
         } else {
             saveList(type, list)
@@ -180,13 +177,13 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         }
 
         newList?.let {
-            if (newList.isEmpty()) {
+            if (it.isEmpty()) {
                 empty_list.visibility = View.VISIBLE
                 this.list.visibility = View.GONE
             } else {
                 empty_list.visibility = View.GONE
                 this.list.visibility = View.VISIBLE
-                this.list.swapAdapter(ListAdapter(newList, this), false)
+                this.list.swapAdapter(ListAdapter(it, this), false)
             }
         }
     }
@@ -209,13 +206,12 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
 
     override fun onClick(v: View?) {
         val itemPosition = list.getChildLayoutPosition(v)
-        val item = (list.adapter as ListAdapter?)?.list?.get(itemPosition)
-        item?.let { openLead(it) }
+        openLead((list.adapter as ListAdapter).list[itemPosition])
     }
 
     override fun onLongClick(v: View?): Boolean {
         val itemPosition = list.getChildLayoutPosition(v)
-        val item = (list.adapter as ListAdapter?)?.list?.get(itemPosition) ?: return false
+        val item = (list.adapter as ListAdapter).list.get(itemPosition)
 
         AlertDialog.Builder(this).setMessage(R.string.assign)
                 .setPositiveButton(R.string.ok, { _, _ ->
@@ -228,9 +224,9 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
 
     override fun onAssignResult(success: Boolean) {
         if (!success) {
-            Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show()
+            toast(R.string.error)
         } else {
-            Toast.makeText(this, R.string.assign_success, Toast.LENGTH_SHORT).show()
+            toast(R.string.assign_success)
             update()
         }
     }
