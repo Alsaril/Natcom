@@ -1,94 +1,108 @@
 package com.natcom.fragment
 
+import android.graphics.Rect
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
+import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.ImageView
+import com.bumptech.glide.Glide
 import com.natcom.R
 import com.natcom.activity.LeadController
-import com.natcom.activity.ListAdapter
-import com.natcom.model.Lead
-import kotterknife.bindView
+import com.natcom.model.Picture
 import java.util.*
 
 
-class PictureListFragment : BoundFragment(), View.OnClickListener {
-    val list by bindView<RecyclerView>(R.id.list)
-
+class PictureListFragment : Fragment(), View.OnClickListener {
     lateinit var leadController: LeadController
+    lateinit var list: RecyclerView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        initFragment(inflater.inflate(R.layout.shift_fragment, container, false), "123")
-
         leadController = activity as LeadController
-
-        val llm = LinearLayoutManager(context)
-        llm.orientation = LinearLayoutManager.VERTICAL
-        list.layoutManager = llm
-        val dividerItemDecoration = DividerItemDecoration(list.getContext(),
-                llm.orientation)
-        list.addItemDecoration(dividerItemDecoration)
-
-        update()
-
-        return super.onCreateView(inflater, container, savedInstanceState)
+        return inflater.inflate(R.layout.picture_list_fragment, container, false)
     }
 
-    fun update() {
-        //this.list.swapAdapter(ListAdapter(it, this), false)
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.pictures)
+        list = view?.findViewById(R.id.list) as RecyclerView
+
+        list.setHasFixedSize(true)
+        list.layoutManager = GridLayoutManager(context, resources.getInteger(R.integer.list_columns))
+        list.addItemDecoration(ItemDecorationAlbumColumns(resources.getDimensionPixelSize(R.dimen.list_spacing), resources.getInteger(R.integer.list_columns)))
+
+        list.swapAdapter(ListAdapter(leadController.lead().images, this), false)
+
     }
 
     override fun onClick(v: View?) {
-        val itemPosition = list.getChildLayoutPosition(v)
-        //openLead((list.adapter as ListAdapter).list[itemPosition])
+        leadController.fullscreen(list.getChildLayoutPosition(v))
     }
 }
 
-class ListAdapter(list: List<Lead>, private val pictureListFragment: PictureListFragment) : RecyclerView.Adapter<ListAdapter.MyViewHolder>() {
-    val list: List<Lead> = Collections.unmodifiableList(list)
+class ListAdapter(list: List<Picture>, private val pictureListFragment: PictureListFragment) : RecyclerView.Adapter<com.natcom.fragment.ListAdapter.MyViewHolder>() {
+    val list: List<Picture> = Collections.unmodifiableList(list)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListAdapter.MyViewHolder {
-        val itemView = LayoutInflater.from(parent.context)
-                .inflate(R.layout.list_item, parent, false)
-        itemView.setOnClickListener(pictureListFragment)
-        return ListAdapter.MyViewHolder(itemView)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+        val image = ImageView(pictureListFragment.context)
+        image.setOnClickListener(pictureListFragment)
+        return MyViewHolder(image)
     }
 
-    override fun onBindViewHolder(holder: ListAdapter.MyViewHolder, position: Int) {
-        val lead = list[position]
-        holder.picture.text = lead.company.subSequence(0, 1)
-        holder.picture.setTextColor(ContextCompat.getColor(pictureListFragment.context, when (lead.company[0]) {
-            'Б' -> R.color.b
-            'М' -> R.color.m
-            'Н' -> R.color.n
-            else -> R.color.black
-        }))
-        holder.company.text = lead.company
-        holder.address.text = lead.address
-        holder.status.text = lead.status
-        holder.responsible.text = lead.responsible
-        holder.responsible.setTextColor(ContextCompat.getColor(pictureListFragment.context, when (lead.color) {
-            0 -> R.color.gray
-            1 -> R.color.green
-            2 -> R.color.red
-            else -> R.color.black
-        }))
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        Glide.with(pictureListFragment).load(list[position].url).into(holder.image)
     }
 
     override fun getItemCount(): Int {
         return list.size
     }
 
-    class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val picture = view.findViewById(R.id.picture) as TextView
-        val company = view.findViewById(R.id.company) as TextView
-        val address = view.findViewById(R.id.address) as TextView
-        val status = view.findViewById(R.id.status) as TextView
-        val responsible = view.findViewById(R.id.responsible) as TextView
+    class MyViewHolder(val image: ImageView) : RecyclerView.ViewHolder(image)
+}
+
+class ItemDecorationAlbumColumns(private val mSizeGridSpacingPx: Int, private val mGridSize: Int) : RecyclerView.ItemDecoration() {
+
+    private var mNeedLeftSpacing = false
+
+    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+        val frameWidth = ((parent.width - mSizeGridSpacingPx.toFloat() * (mGridSize - 1)) / mGridSize).toInt()
+        val padding = parent.width / mGridSize - frameWidth
+        val itemPosition = (view.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
+        if (itemPosition < mGridSize) {
+            outRect.top = 0
+        } else {
+            outRect.top = mSizeGridSpacingPx
+        }
+        if (itemPosition % mGridSize == 0) {
+            outRect.left = 0
+            outRect.right = padding
+            mNeedLeftSpacing = true
+        } else if ((itemPosition + 1) % mGridSize == 0) {
+            mNeedLeftSpacing = false
+            outRect.right = 0
+            outRect.left = padding
+        } else if (mNeedLeftSpacing) {
+            mNeedLeftSpacing = false
+            outRect.left = mSizeGridSpacingPx - padding
+            if ((itemPosition + 2) % mGridSize == 0) {
+                outRect.right = mSizeGridSpacingPx - padding
+            } else {
+                outRect.right = mSizeGridSpacingPx / 2
+            }
+        } else if ((itemPosition + 2) % mGridSize == 0) {
+            mNeedLeftSpacing = false
+            outRect.left = mSizeGridSpacingPx / 2
+            outRect.right = mSizeGridSpacingPx - padding
+        } else {
+            mNeedLeftSpacing = false
+            outRect.left = mSizeGridSpacingPx / 2
+            outRect.right = mSizeGridSpacingPx / 2
+        }
+        outRect.bottom = 0
     }
 }

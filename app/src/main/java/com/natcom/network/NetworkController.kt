@@ -1,7 +1,6 @@
 package com.natcom.network
 
 import android.content.Context
-import android.net.Uri
 import android.preference.PreferenceManager
 import com.google.gson.GsonBuilder
 import com.natcom.LOGIN_KEY
@@ -21,8 +20,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 
+
 object NetworkController {
 
+    //val BASE_URL = "http://192.168.1.48:5000/"
     val BASE_URL = "http://188.225.77.144/"
 
     private val retrofit: Retrofit by lazy { init(MyApp.instance) }
@@ -85,8 +86,8 @@ object NetworkController {
         get
         set
 
-    fun picture(id: Int, uri: Uri) {
-        api.upload(id, MultipartBody.Part.createFormData("file", "file", RequestBody.create(MediaType.parse("image/*"), File(uri.path)))).enqueue(object : Callback<Void> {
+    fun picture(id: Int, file: File) {
+        api.upload(id, MultipartBody.Part.createFormData("file", "file", RequestBody.create(MediaType.parse("image/*"), file))).enqueue(object : Callback<Void> {
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 pictureCallback?.onPictureResult(false)
             }

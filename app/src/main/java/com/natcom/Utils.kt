@@ -1,13 +1,18 @@
 package com.natcom
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.preference.PreferenceManager
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
-import android.util.TypedValue
 import android.widget.Toast
 import com.google.gson.Gson
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,6 +22,7 @@ val LEAD_KEY = "LEAD_KEY"
 val LIST_KEY = "LIST_KEY"
 val PARAM_KEY = "PARAM_KEY"
 val LOGIN_KEY = "LOGIN_KEY"
+val POSITION_KEY = "POSITION_KEY"
 val PASSWORD_KEY = "PASSWORD_KEY"
 val FRAGMENT_TAG = "FRAGMENT_TAG"
 
@@ -61,13 +67,26 @@ fun prepareDate(year: Int, month: Int, day: Int): String {
     return SimpleDateFormat("yyyy-MM-dd 00:00:00", Locale.getDefault()).format(c.time)
 }
 
-fun sp2px(sp: Int, context: Context)
-        = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp.toFloat(), context.resources.displayMetrics)
-
 fun Fragment.toast(@StringRes text: Int) {
     Toast.makeText(activity, text, Toast.LENGTH_SHORT).show()
 }
 
 fun AppCompatActivity.toast(@StringRes text: Int) {
     Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+}
+
+val MAX_SIZE = 1280
+
+fun compressImage(uri: Uri, f: (File) -> Unit) {
+    Thread {
+        val bitmap = BitmapFactory.decodeFile(uri.path)
+        val widthCoef = bitmap.width.toDouble() / MAX_SIZE
+        val heightCoef = bitmap.height.toDouble() / MAX_SIZE
+        val scale = maxOf(widthCoef, heightCoef)
+        val result = Bitmap.createScaledBitmap(bitmap,
+                (bitmap.width / scale).toInt(), (bitmap.height / scale).toInt(), true)
+        val os = BufferedOutputStream(FileOutputStream(uri.path))
+        result.compress(Bitmap.CompressFormat.JPEG, 90, os)
+        f(File(uri.path))
+    }.start()
 }

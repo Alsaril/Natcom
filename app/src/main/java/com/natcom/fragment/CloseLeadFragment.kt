@@ -18,6 +18,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import com.natcom.R
 import com.natcom.activity.LeadController
+import com.natcom.compressImage
 import com.natcom.network.CloseResult
 import com.natcom.network.NetworkController
 import com.natcom.network.PictureResult
@@ -102,9 +103,8 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
             return
         }
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val photo = File(Environment.getExternalStorageDirectory(), "Pic.jpg")
-        intent.putExtra(MediaStore.EXTRA_OUTPUT,
-                Uri.fromFile(photo))
+        val photo = File(Environment.getDataDirectory(), "pic.jpg")
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo))
         imageUri = Uri.fromFile(photo)
         startActivityForResult(intent, TAKE_PICTURE)
     }
@@ -113,7 +113,9 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
         super.onActivityResult(requestCode, resultCode, data)
         imageUri?.let {
             if (requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
-                NetworkController.picture(leadController.lead().id, it)
+                compressImage(it) {
+                    NetworkController.picture(leadController.lead().id, it)
+                }
             }
         }
     }

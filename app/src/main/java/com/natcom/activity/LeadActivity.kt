@@ -6,11 +6,9 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import com.natcom.FRAGMENT_TAG
 import com.natcom.LEAD_KEY
+import com.natcom.POSITION_KEY
 import com.natcom.R
-import com.natcom.fragment.CloseLeadFragment
-import com.natcom.fragment.DenyLeadFragment
-import com.natcom.fragment.LeadFragment
-import com.natcom.fragment.ShiftLeadFragment
+import com.natcom.fragment.*
 import com.natcom.model.Lead
 
 class LeadActivity : AppCompatActivity(), LeadController {
@@ -71,12 +69,20 @@ class LeadActivity : AppCompatActivity(), LeadController {
     }
 
     override fun pictures() {
-
+        changeFragment(PictureListFragment())
     }
 
     override fun back() {
         supportFragmentManager.popBackStack()
         supportFragmentManager.popBackStack()
+    }
+
+    override fun fullscreen(position: Int) {
+        val fragment = FullscreenFragment()
+        val bundle = Bundle()
+        bundle.putInt(POSITION_KEY, position)
+        fragment.arguments = bundle
+        changeFragment(fragment)
     }
 }
 
@@ -87,4 +93,5 @@ interface LeadController {
     fun shiftLead()
     fun pictures()
     fun back()
+    fun fullscreen(position: Int)
 }

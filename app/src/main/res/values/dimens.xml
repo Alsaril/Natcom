@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="list_spacing">8dp</dimen>
     <dimen name="text">16sp</dimen>
     <dimen name="phone">20sp</dimen>
     <dimen name="name">20sp</dimen>

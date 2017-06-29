@@ -13,7 +13,7 @@ data class Lead(val id: Int,
                 val responsible: String,
                 val color: Int,
                 val editable: Int,
-                val images: ArrayList<String>,
+                val images: ArrayList<Picture>,
                 val contacts: ArrayList<Contact>) : Parcelable {
 
     companion object {
@@ -24,9 +24,9 @@ data class Lead(val id: Int,
 
             override fun createFromParcel(source: Parcel): Lead {
                 with(source) {
-                    val pictures = ArrayList<String>()
+                    val pictures = ArrayList<Picture>()
                     val contacts = ArrayList<Contact>()
-                    readStringList(pictures)
+                    readTypedList(pictures, Picture.CREATOR)
                     readTypedList<Contact>(contacts, Contact.CREATOR)
                     return Lead(readInt(),
                             readString(),
@@ -47,7 +47,7 @@ data class Lead(val id: Int,
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         with(dest) {
-            writeStringList(images)
+            writeTypedList(images)
             writeTypedList(contacts)
             writeInt(id)
             writeString(company)
