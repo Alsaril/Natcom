@@ -10,14 +10,26 @@ import android.view.ViewGroup
 
 open class BoundFragment : Fragment() {
     lateinit var root: View
+    var set: Boolean = false
+
+    private fun trySet(root: View) {
+        if (!set) {
+            synchronized(set) {
+                if (!set) {
+                    this.root = root
+                    set = true
+                }
+            }
+        }
+    }
 
     protected fun initFragment(root: View, @StringRes title: Int) {
-        this.root = root
+        trySet(root)
         (activity as AppCompatActivity).supportActionBar?.title = getString(title)
     }
 
     protected fun initFragment(root: View, title: String) {
-        this.root = root
+        trySet(root)
         (activity as AppCompatActivity).supportActionBar?.title = title
     }
 
