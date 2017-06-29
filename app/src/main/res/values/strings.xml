@@ -33,4 +33,5 @@
     <string name="sure">Уверен?</string>
     <string name="need_contract">Необходимо заключить договор</string>
     <string name="pictures">Картинки</string>
+    <string name="login">Авторизация</string>
 </resources>

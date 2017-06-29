@@ -3,6 +3,7 @@ package com.natcom.activity
 import android.content.Intent
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -22,6 +23,10 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_activity)
+
+        val mActionBarToolbar = findViewById(R.id.toolbar_actionbar) as Toolbar
+        setSupportActionBar(mActionBarToolbar)
+        supportActionBar?.title = getString(R.string.login)
 
         confirm.setOnClickListener { confirm() }
     }
