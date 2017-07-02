@@ -103,7 +103,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
             return
         }
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val photo = File(Environment.getDataDirectory(), "pic.jpg")
+        val photo = File(Environment.getExternalStorageDirectory(), "pic.jpg")
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo))
         imageUri = Uri.fromFile(photo)
         startActivityForResult(intent, TAKE_PICTURE)
