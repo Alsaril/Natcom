@@ -11,6 +11,7 @@ data class Lead(val id: Int,
                 val mountDate: String?,
                 val status: String,
                 val responsible: String,
+                val comment: String,
                 val color: Int,
                 val editable: Int,
                 val images: ArrayList<Picture>,
@@ -29,6 +30,7 @@ data class Lead(val id: Int,
                     readTypedList(pictures, Picture.CREATOR)
                     readTypedList<Contact>(contacts, Contact.CREATOR)
                     return Lead(readInt(),
+                            readString(),
                             readString(),
                             readString(),
                             readString(),
@@ -57,6 +59,7 @@ data class Lead(val id: Int,
             writeString(mountDate)
             writeString(status)
             writeString(responsible)
+            writeString(comment)
             writeInt(color)
             writeInt(editable)
         }

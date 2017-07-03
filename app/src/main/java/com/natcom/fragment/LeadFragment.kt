@@ -26,11 +26,13 @@ class LeadFragment : BoundFragment(), ShiftResult, DenyResult {
     val mount_date by bindView<TextView>(R.id.mount_date)
     val status by bindView<TextView>(R.id.status)
     val responsible by bindView<TextView>(R.id.responsible)
+    val comment by bindView<TextView>(R.id.comment)
     val contacts by bindView<LinearLayout>(R.id.contacts)
     val close by bindView<Button>(R.id.close)
     val shift by bindView<Button>(R.id.shift)
     val deny by bindView<Button>(R.id.deny)
     val pictures by bindView<Button>(R.id.pictures)
+
 
     lateinit var leadController: LeadController
 
@@ -47,6 +49,7 @@ class LeadFragment : BoundFragment(), ShiftResult, DenyResult {
         mount_date.text = lead.mountDate
         status.text = lead.status
         responsible.text = lead.responsible
+        comment.text = lead.comment
         contacts.removeAllViews()
         lead.contacts.forEach {
             val view = getLayoutInflater(savedInstanceState).inflate(R.layout.contact_item, contacts, false)
