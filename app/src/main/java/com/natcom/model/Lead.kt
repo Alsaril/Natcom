@@ -3,19 +3,19 @@ package com.natcom.model
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Lead(val id: Int,
-                val company: String,
-                val address: String,
-                val apartment: String,
-                val date: String,
-                val mountDate: String?,
-                val status: String,
-                val responsible: String,
-                val comment: String,
-                val color: Int,
-                val editable: Int,
-                val images: ArrayList<Picture>,
-                val contacts: ArrayList<Contact>) : Parcelable {
+class Lead(val id: Int,
+           val company: String,
+           val address: String,
+           val apartment: String,
+           val date: String,
+           val mountDate: String?,
+           val status: String,
+           val responsible: String,
+           val comment: String,
+           val color: Int,
+           val editable: Int,
+           val images: ArrayList<Picture>,
+           val contacts: ArrayList<Contact>) : Parcelable {
 
     companion object {
         @Suppress("unused")

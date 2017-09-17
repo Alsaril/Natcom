@@ -7,20 +7,17 @@ import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.natcom.JobHolder
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
+import java.util.concurrent.atomic.AtomicReference
 
-open class BoundFragment : Fragment() {
-    lateinit var root: View
-    var set: Boolean = false
+open class CustomFragment : Fragment() {
+    var root = AtomicReference<View?>()
+    private val jobHolder = JobHolder()
 
     private fun trySet(root: View) {
-        if (!set) {
-            synchronized(set) {
-                if (!set) {
-                    this.root = root
-                    set = true
-                }
-            }
-        }
+        this.root.compareAndSet(null, root)
     }
 
     protected fun initFragment(root: View, @StringRes title: Int) {
@@ -33,7 +30,14 @@ open class BoundFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.title = title
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return root
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = root.get()
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        jobHolder.dispose()
+    }
+
+    fun invokeLater(f: suspend () -> Unit) {
+        jobHolder.add(launch(UI) { f() })
     }
 }

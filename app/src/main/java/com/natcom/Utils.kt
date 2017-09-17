@@ -10,11 +10,16 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.google.gson.Gson
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.android.UI
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.BufferedOutputStream
-import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 val LIST_TYPE_KEY = "LIST_TYPE_KEY"
@@ -42,7 +47,8 @@ fun reset() {
             .apply()
 }
 
-private val MONTH_NAMES = arrayOf("января",
+private val MONTH_NAMES = arrayOf(
+        "января",
         "февраля",
         "марта",
         "апреля",
@@ -77,16 +83,61 @@ fun AppCompatActivity.toast(@StringRes text: Int) {
 
 val MAX_SIZE = 1280
 
-fun compressImage(uri: Uri, f: (File) -> Unit) {
-    Thread {
-        val bitmap = BitmapFactory.decodeFile(uri.path)
-        val widthCoef = bitmap.width.toDouble() / MAX_SIZE
-        val heightCoef = bitmap.height.toDouble() / MAX_SIZE
-        val scale = maxOf(widthCoef, heightCoef)
-        val result = Bitmap.createScaledBitmap(bitmap,
-                (bitmap.width / scale).toInt(), (bitmap.height / scale).toInt(), true)
-        val os = BufferedOutputStream(FileOutputStream(uri.path))
+fun compressImage(uri: Uri) = async(UI) {
+    val bitmap = BitmapFactory.decodeFile(uri.path)
+    val widthCoef = bitmap.width.toDouble() / MAX_SIZE
+    val heightCoef = bitmap.height.toDouble() / MAX_SIZE
+    val scale = maxOf(widthCoef, heightCoef)
+    val result = Bitmap.createScaledBitmap(bitmap,
+            (bitmap.width / scale).toInt(), (bitmap.height / scale).toInt(), true)
+    val os = BufferedOutputStream(FileOutputStream(uri.path))
+    run(CommonPool) {
         result.compress(Bitmap.CompressFormat.JPEG, 90, os)
-        f(File(uri.path))
-    }.start()
+    }
+    return@async
 }
+
+
+suspend fun <T : Any?> Call<T>.awaitResponse(): Result<T> {
+    return suspendCancellableCoroutine { continuation ->
+        enqueue(object : Callback<T> {
+            override fun onResponse(call: Call<T>?, response: Response<T>) {
+                if (response.isSuccessful) {
+                    continuation.resume(Result(throwable = FailedResponseException("code=${response.code()} body=${response.body()}")))
+                } else {
+                    continuation.resume(Result(response))
+                }
+            }
+
+            override fun onFailure(call: Call<T>, t: Throwable) {
+                continuation.resume(Result(throwable = t))
+            }
+        })
+    }
+}
+
+class Result<T>(response: Response<T>? = null, val throwable: Throwable? = null) {
+    private var value: T? = response?.body()
+
+    fun isSuccessful() = value != null
+
+    fun value(): T = value!!
+}
+
+class JobHolder {
+    private val jobs = ArrayList<Job>()
+
+    fun add(job: Job) {
+        jobs.add(job)
+        job.invokeOnCompletion { jobs.remove(job) }
+    }
+
+    fun dispose() {
+        for (job in jobs) {
+            job.cancel()
+        }
+        jobs.clear()
+    }
+}
+
+class FailedResponseException(message: String) : Exception(message)

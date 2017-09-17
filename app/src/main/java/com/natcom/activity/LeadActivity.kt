@@ -34,10 +34,10 @@ class LeadActivity : AppCompatActivity(), LeadController {
             return
         }
 
-        savedInstanceState?.let {
-            fragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
-        } ?: run {
+        if (savedInstanceState == null) {
             changeFragment(LeadFragment(), false)
+        } else {
+            fragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
         }
     }
 
@@ -46,7 +46,7 @@ class LeadActivity : AppCompatActivity(), LeadController {
         return true
     }
 
-    fun changeFragment(fragment: Fragment, addToBackStack: Boolean = true) {
+    private fun changeFragment(fragment: Fragment, addToBackStack: Boolean = true) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.root, fragment, FRAGMENT_TAG)
         if (addToBackStack) {

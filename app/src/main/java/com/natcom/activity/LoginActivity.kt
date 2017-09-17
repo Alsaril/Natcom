@@ -8,10 +8,10 @@ import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import com.natcom.LOGIN_KEY
 import com.natcom.PASSWORD_KEY
 import com.natcom.R
+import com.natcom.toast
 import kotterknife.bindView
 
 class LoginActivity : AppCompatActivity() {
@@ -33,7 +33,7 @@ class LoginActivity : AppCompatActivity() {
 
     fun confirm() {
         if (login.text.isEmpty() || password.text.isEmpty()) {
-            Toast.makeText(this, getString(R.string.empty_fields), Toast.LENGTH_SHORT).show()
+            toast(R.string.empty_fields)
             return
         }
         confirm.isEnabled = false

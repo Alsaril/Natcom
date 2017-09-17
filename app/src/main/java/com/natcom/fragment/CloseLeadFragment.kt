@@ -16,20 +16,16 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import com.natcom.R
+import com.natcom.*
 import com.natcom.activity.LeadController
-import com.natcom.compressImage
-import com.natcom.network.CloseResult
+import com.natcom.model.CloseRequest
 import com.natcom.network.NetworkController
-import com.natcom.network.PictureResult
-import com.natcom.prepareDate
-import com.natcom.toast
 import kotterknife.bindView
 import java.io.File
 import java.util.*
 
 
-class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
+class CloseLeadFragment : CustomFragment() {
     val contract by bindView<CheckBox>(R.id.contract)
     val mount by bindView<CheckBox>(R.id.mount)
     val cashless by bindView<CheckBox>(R.id.cashless)
@@ -40,6 +36,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
     val picture by bindView<Button>(R.id.picture)
     val save by bindView<Button>(R.id.save)
 
+    private val REQUEST_CODE = 1212
     private val TAKE_PICTURE = 1
     private var imageUri: Uri? = null
 
@@ -49,9 +46,6 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
         initFragment(inflater.inflate(R.layout.close_fragment, container, false), R.string.close_lead)
 
         leadController = activity as LeadController
-
-        NetworkController.pictureCallback = this
-        NetworkController.closeCallback = this
 
         picture.setOnClickListener { picture() }
         save.setOnClickListener { save() }
@@ -72,15 +66,6 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
 
         return super.onCreateView(inflater, container, savedInstanceState)
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        NetworkController.pictureCallback = null
-        NetworkController.closeCallback = null
-    }
-
-    val REQUEST_CODE = 1212
 
     private fun checkAccess() = ContextCompat.checkSelfPermission(context,
             Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
@@ -114,30 +99,36 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        imageUri?.let {
-            if (requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
-                compressImage(it) {
-                    NetworkController.picture(leadController.lead().id, it)
-                }
-            }
+        val uri = imageUri
+        if (requestCode != TAKE_PICTURE || resultCode != Activity.RESULT_OK || uri == null) return
+        invokeLater {
+            compressImage(uri).await()
+            val result = NetworkController.picture(leadController.lead().id, uri).awaitResponse()
+            toast(if (!result.isSuccessful()) R.string.error else R.string.post_success)
         }
     }
 
-    override fun onPictureResult(success: Boolean) {
-        toast(if (!success) R.string.error else R.string.post_success)
-    }
-
-    fun save() {
+    private fun save() = invokeLater {
         if (comment.text.isEmpty() || (date.text.isEmpty() && mount.isChecked)) {
             toast(R.string.empty_fields)
-            return
+            return@invokeLater
         }
-        NetworkController.close(leadController.lead().id,
-                contract.isChecked, mount.isChecked, comment.text.toString(), date.text.toString(), leadSum.text.toString(), prepay.text.toString(), cashless.isChecked)
-    }
 
-    override fun onCloseResult(success: Boolean) {
-        toast(if (!success) R.string.error else R.string.close_success)
+        val closeRequest = CloseRequest(
+                contract.isChecked,
+                mount.isChecked,
+                comment.text.toString(),
+                date.text.toString(),
+                leadSum.text.toString(),
+                prepay.text.toString(),
+                cashless.isChecked)
+
+        val result = NetworkController.api.close(leadController.lead().id, closeRequest).awaitResponse()
+        if (!result.isSuccessful()) {
+            toast(R.string.error)
+            return@invokeLater
+        }
+        toast(R.string.close_success)
         leadController.back()
     }
 }

@@ -16,15 +16,16 @@ import android.widget.TextView
 import com.google.gson.reflect.TypeToken
 import com.natcom.*
 import com.natcom.model.Lead
-import com.natcom.network.AssignResult
 import com.natcom.network.ListResult
 import com.natcom.network.NetworkController
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import kotterknife.bindView
 import java.lang.reflect.Type
 import java.util.*
 
 
-class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClickListener, View.OnLongClickListener {
+class ListActivity : AppCompatActivity(), ListResult, View.OnClickListener, View.OnLongClickListener {
 
     val navigation by bindView<BottomNavigationView>(R.id.navigation)
     val list by bindView<RecyclerView>(R.id.list)
@@ -37,6 +38,8 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         }
     var param: String? = null
     var searchMenuItem: MenuItem? = null
+
+    private val jobHolder = JobHolder()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,11 +67,9 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
             if (type == ListType.DATE) {
                 val date = Calendar.getInstance()
                 DatePickerDialog(this, { _, year, month, day ->
-                    run {
-                        this.type = ListType.DATE
-                        this.param = prepareDate(year, month, day)
-                        update(true)
-                    }
+                    this.type = ListType.DATE
+                    this.param = prepareDate(year, month, day)
+                    update(true)
                 }, date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH)).show()
             } else {
                 if (this.type != type) {
@@ -91,12 +92,10 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         val llm = LinearLayoutManager(this)
         llm.orientation = LinearLayoutManager.VERTICAL
         list.layoutManager = llm
-        val dividerItemDecoration = DividerItemDecoration(list.getContext(),
-                llm.orientation)
+        val dividerItemDecoration = DividerItemDecoration(list.context, llm.orientation)
         list.addItemDecoration(dividerItemDecoration)
 
         NetworkController.listCallback = this
-        NetworkController.assignCallback = this
 
         update()
     }
@@ -104,8 +103,8 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
     override fun onDestroy() {
         super.onDestroy()
 
+        jobHolder.dispose()
         NetworkController.listCallback = null
-        NetworkController.assignCallback = null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -139,7 +138,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         return true
     }
 
-    fun openLead(lead: Lead) {
+    private fun openLead(lead: Lead) {
         val intent = Intent(this, LeadActivity::class.java)
         intent.putExtra(LEAD_KEY, lead)
         startActivityForResult(intent, REQUEST_CODE)
@@ -157,7 +156,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
             if (it == ListType.TODAY || it == ListType.TOMORROW) {
                 NetworkController.list(it, reset = force)
             } else {
-                param?.let { p -> NetworkController.list(it, p, force) } ?: run { return }
+                param?.let { p -> NetworkController.list(it, p, force) } ?: return
             }
         }
         progress.visibility = View.VISIBLE
@@ -188,7 +187,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
         }
     }
 
-    fun saveList(type: ListType, list: List<Lead>?) {
+    private fun saveList(type: ListType, list: List<Lead>?) {
         if (list == null || type == ListType.DATE || type == ListType.SEARCH) return
         val value = gson.toJson(list)
         PreferenceManager.getDefaultSharedPreferences(this)
@@ -197,7 +196,7 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
                 .apply()
     }
 
-    fun loadList(type: ListType): List<Lead>? {
+    private fun loadList(type: ListType): List<Lead>? {
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         if (!sp.contains(LIST_KEY + type.toString())) return null
         val t: Type = object : TypeToken<List<Lead>>() {}.type
@@ -211,25 +210,29 @@ class ListActivity : AppCompatActivity(), ListResult, AssignResult, View.OnClick
 
     override fun onLongClick(v: View?): Boolean {
         val itemPosition = list.getChildLayoutPosition(v)
-        val item = (list.adapter as ListAdapter).list.get(itemPosition)
+        val item = (list.adapter as ListAdapter).list[itemPosition]
 
-        AlertDialog.Builder(this).setMessage(R.string.assign)
-                .setPositiveButton(R.string.ok, { _, _ ->
-                    NetworkController.assign(item.id)
-                })
-                .setNegativeButton(R.string.cancel, { _, _ -> })
+        AlertDialog.Builder(this)
+                .setMessage(R.string.assign)
+                .setPositiveButton(R.string.ok, { _, _ -> assign(item.id) })
+                .setNegativeButton(R.string.cancel, null)
                 .show()
         return true
     }
 
-    override fun onAssignResult(success: Boolean) {
-        if (!success) {
-            toast(R.string.error)
-        } else {
+    private fun assign(id: Int) {
+        val job = launch(UI) {
+            val result = NetworkController.api.assign(id).awaitResponse()
+            if (!result.isSuccessful()) {
+                toast(R.string.error)
+                return@launch
+            }
             toast(R.string.assign_success)
             update()
         }
+        jobHolder.add(job)
     }
+
 }
 
 enum class ListType(val iname: Int) {
@@ -260,7 +263,6 @@ class ListAdapter(list: List<Lead>, private val listActivity: ListActivity) : Re
             'Н' -> R.color.n
             else -> R.color.black
         }))
-        holder.company.text = lead.company
         holder.address.text = lead.address
         holder.status.text = lead.status
         holder.responsible.text = lead.responsible
@@ -272,13 +274,10 @@ class ListAdapter(list: List<Lead>, private val listActivity: ListActivity) : Re
         }))
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
+    override fun getItemCount() = list.size
 
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val picture = view.findViewById(R.id.picture) as TextView
-        val company = view.findViewById(R.id.company) as TextView
         val address = view.findViewById(R.id.address) as TextView
         val status = view.findViewById(R.id.status) as TextView
         val responsible = view.findViewById(R.id.responsible) as TextView

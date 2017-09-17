@@ -6,7 +6,7 @@ import android.app.DialogFragment
 import android.app.Fragment
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.View
-import com.natcom.fragment.BoundFragment
+import com.natcom.fragment.CustomFragment
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import android.support.v4.app.DialogFragment as SupportDialogFragment
@@ -30,8 +30,8 @@ public fun <V : View> SupportDialogFragment.bindView(id: Int)
 public fun <V : View> Fragment.bindView(id: Int)
         : ReadOnlyProperty<Fragment, V> = required(id, viewFinder)
 
-public fun <V : View> BoundFragment.bindView(id: Int)
-        : ReadOnlyProperty<BoundFragment, V> = required(id, viewFinder)
+public fun <V : View> CustomFragment.bindView(id: Int)
+        : ReadOnlyProperty<CustomFragment, V> = required(id, viewFinder)
 
 public fun <V : View> SupportFragment.bindView(id: Int)
         : ReadOnlyProperty<SupportFragment, V> = required(id, viewFinder)
@@ -123,8 +123,8 @@ private val SupportDialogFragment.viewFinder: SupportDialogFragment.(Int) -> Vie
     get() = { dialog.findViewById(it) }
 private val Fragment.viewFinder: Fragment.(Int) -> View?
     get() = { view.findViewById(it) }
-private val BoundFragment.viewFinder: BoundFragment.(Int) -> View?
-    get() = { root.findViewById(it) }
+private val CustomFragment.viewFinder: CustomFragment.(Int) -> View?
+    get() = { root.get()?.findViewById(it) }
 private val SupportFragment.viewFinder: SupportFragment.(Int) -> View?
     get() = { view!!.findViewById(it) }
 private val ViewHolder.viewFinder: ViewHolder.(Int) -> View?

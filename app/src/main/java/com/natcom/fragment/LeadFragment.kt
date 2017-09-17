@@ -10,16 +10,11 @@ import android.widget.TextView
 import com.natcom.R
 import com.natcom.activity.LeadController
 import com.natcom.formatDate
-import com.natcom.network.DenyResult
-import com.natcom.network.NetworkController
-import com.natcom.network.ShiftResult
-import com.natcom.toast
 import kotterknife.bindView
 import java.text.SimpleDateFormat
 import java.util.*
 
-class LeadFragment : BoundFragment(), ShiftResult, DenyResult {
-    val company by bindView<TextView>(R.id.company)
+class LeadFragment : CustomFragment() {
     val address by bindView<TextView>(R.id.address)
     val apartment by bindView<TextView>(R.id.apartment)
     val date by bindView<TextView>(R.id.date)
@@ -40,9 +35,8 @@ class LeadFragment : BoundFragment(), ShiftResult, DenyResult {
         leadController = activity as LeadController // hack
         val lead = leadController.lead()            // hack
         // init MUST be the first instruction
-        initFragment(inflater.inflate(R.layout.lead_fragment, container, false), "${getString(R.string.lead)} №${lead.id}")
+        initFragment(inflater.inflate(R.layout.lead_fragment, container, false), "${getString(R.string.lead)} №${formatNumber(lead.id)}")
 
-        company.text = lead.company
         address.text = lead.address
         apartment.text = lead.apartment
         date.text = formatDate(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(lead.date))
@@ -68,9 +62,6 @@ class LeadFragment : BoundFragment(), ShiftResult, DenyResult {
             deny.isEnabled = false
         }
 
-        NetworkController.shiftCallback = this
-        NetworkController.denyCallback = this
-
         close.setOnClickListener { leadController.closeLead() }
         shift.setOnClickListener { leadController.shiftLead() }
         deny.setOnClickListener { leadController.denyLead() }
@@ -79,20 +70,8 @@ class LeadFragment : BoundFragment(), ShiftResult, DenyResult {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        NetworkController.shiftCallback = null
-        NetworkController.denyCallback = null
-    }
-
-    override fun onShiftResult(success: Boolean) {
-        toast(if (!success) R.string.error else R.string.shift_success)
-        leadController.back()
-    }
-
-    override fun onDenyResult(success: Boolean) {
-        toast(if (!success) R.string.error else R.string.deny_success)
-        leadController.back()
+    private fun formatNumber(number: Int): String {
+        val s = number.toString()
+        return s.substring(0, 4) + "-" + s.substring(4)
     }
 }

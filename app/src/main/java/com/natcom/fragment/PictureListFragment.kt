@@ -58,9 +58,7 @@ class ListAdapter(list: List<Picture>, private val pictureListFragment: PictureL
         Glide.with(pictureListFragment).load(list[position].url).into(holder.image)
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
+    override fun getItemCount() = list.size
 
     class MyViewHolder(val image: ImageView) : RecyclerView.ViewHolder(image)
 }

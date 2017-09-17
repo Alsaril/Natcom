@@ -19,7 +19,7 @@ import kotterknife.bindView
 import java.util.*
 
 
-class FullscreenFragment : BoundFragment() {
+class FullscreenFragment : CustomFragment() {
     val pager by bindView<ViewPager>(R.id.pager)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -46,9 +46,8 @@ class FullscreenPagerAdapter(urlList: ArrayList<Picture>, val fullscreenFragment
 
     val list: List<Picture> = Collections.unmodifiableList(urlList)
 
-    override fun isViewFromObject(view: View, `object`: Any): Boolean {
-        return view === `object` as TouchImageView
-    }
+    override fun isViewFromObject(view: View, `object`: Any): Boolean =
+            view === `object` as TouchImageView
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val image = TouchImageView(fullscreenFragment.context)

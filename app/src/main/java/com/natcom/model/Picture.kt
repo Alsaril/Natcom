@@ -3,7 +3,7 @@ package com.natcom.model
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Picture(val id: Int, val url: String) : Parcelable {
+class Picture(val id: Int, val url: String) : Parcelable {
     companion object {
         @Suppress("unused")
         @JvmField
