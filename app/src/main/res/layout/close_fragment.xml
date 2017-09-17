@@ -18,6 +18,25 @@
         android:text="@string/mount" />
 
     <EditText
+        android:id="@+id/leadSum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:hint="@string/leadSum" />
+
+    <EditText
+        android:id="@+id/prepay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:hint="@string/prepay" />
+    <CheckBox
+        android:id="@+id/cashless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cashless" />
+
+    <EditText
         android:id="@+id/comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

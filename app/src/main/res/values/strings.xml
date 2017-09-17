@@ -35,4 +35,7 @@
     <string name="pictures">Картинки</string>
     <string name="login">Авторизация</string>
     <string name="R.string.picture_list">Картинки</string>
+    <string name="leadSum">Сумма</string>
+    <string name="prepay">Предоплата</string>
+    <string name="cashless">Безнал</string>
 </resources>

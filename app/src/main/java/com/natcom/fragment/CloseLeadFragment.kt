@@ -32,8 +32,11 @@ import java.util.*
 class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
     val contract by bindView<CheckBox>(R.id.contract)
     val mount by bindView<CheckBox>(R.id.mount)
+    val cashless by bindView<CheckBox>(R.id.cashless)
     val comment by bindView<EditText>(R.id.comment)
     val date by bindView<EditText>(R.id.date)
+    val leadSum by bindView<EditText>(R.id.leadSum)
+    val prepay by bindView<EditText>(R.id.prepay)
     val picture by bindView<Button>(R.id.picture)
     val save by bindView<Button>(R.id.save)
 
@@ -130,7 +133,7 @@ class CloseLeadFragment : BoundFragment(), PictureResult, CloseResult {
             return
         }
         NetworkController.close(leadController.lead().id,
-                contract.isChecked, mount.isChecked, comment.text.toString(), date.text.toString())
+                contract.isChecked, mount.isChecked, comment.text.toString(), date.text.toString(), leadSum.text.toString(), prepay.text.toString(), cashless.isChecked)
     }
 
     override fun onCloseResult(success: Boolean) {

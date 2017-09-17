@@ -109,8 +109,8 @@ object NetworkController {
         get
         set
 
-    fun close(id: Int, contract: Boolean, mount: Boolean, comment: String, date: String) {
-        api.close(id, CloseRequest(contract, mount, comment, date)).enqueue(object : Callback<Void> {
+    fun close(id: Int, contract: Boolean, mount: Boolean, comment: String, date: String, leadSum: String, prepay: String, cashless: Boolean) {
+        api.close(id, CloseRequest(contract, mount, comment, date, leadSum, prepay, cashless)).enqueue(object : Callback<Void> {
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 closeCallback?.onCloseResult(false)
             }
