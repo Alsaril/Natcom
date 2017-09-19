@@ -18,7 +18,7 @@ import java.util.*
 
 
 class PictureListFragment : Fragment(), View.OnClickListener {
-    lateinit var leadController: LeadController
+    private lateinit var leadController: LeadController
     lateinit var list: RecyclerView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -30,7 +30,7 @@ class PictureListFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.pictures)
-        list = view?.findViewById(R.id.list) as RecyclerView
+        list = view?.findViewById(R.id.list)!!
 
         list.setHasFixedSize(true)
         list.layoutManager = GridLayoutManager(context, resources.getInteger(R.integer.list_columns))
@@ -40,9 +40,7 @@ class PictureListFragment : Fragment(), View.OnClickListener {
 
     }
 
-    override fun onClick(v: View?) {
-        leadController.fullscreen(list.getChildLayoutPosition(v))
-    }
+    override fun onClick(v: View?) = leadController.fullscreen(list.getChildLayoutPosition(v))
 }
 
 class ListAdapter(list: List<Picture>, private val pictureListFragment: PictureListFragment) : RecyclerView.Adapter<com.natcom.fragment.ListAdapter.MyViewHolder>() {

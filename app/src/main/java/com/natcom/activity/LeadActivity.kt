@@ -21,7 +21,7 @@ class LeadActivity : AppCompatActivity(), LeadController {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.lead_activity)
 
-        val mActionBarToolbar = findViewById(R.id.toolbar_actionbar) as Toolbar
+        val mActionBarToolbar = findViewById<Toolbar>(R.id.toolbar_actionbar)
         setSupportActionBar(mActionBarToolbar)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -56,21 +56,13 @@ class LeadActivity : AppCompatActivity(), LeadController {
         this.fragment = fragment
     }
 
-    override fun denyLead() {
-        changeFragment(DenyLeadFragment())
-    }
+    override fun denyLead() = changeFragment(DenyLeadFragment())
 
-    override fun closeLead() {
-        changeFragment(CloseLeadFragment())
-    }
+    override fun closeLead() = changeFragment(CloseLeadFragment())
 
-    override fun shiftLead() {
-        changeFragment(ShiftLeadFragment())
-    }
+    override fun shiftLead() = changeFragment(ShiftLeadFragment())
 
-    override fun pictures() {
-        changeFragment(PictureListFragment())
-    }
+    override fun pictures() = changeFragment(PictureListFragment())
 
     override fun back() {
         supportFragmentManager.popBackStack()

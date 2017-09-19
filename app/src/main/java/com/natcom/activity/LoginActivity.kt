@@ -15,16 +15,16 @@ import com.natcom.toast
 import kotterknife.bindView
 
 class LoginActivity : AppCompatActivity() {
-    val login by bindView<TextView>(R.id.login)
-    val password by bindView<TextView>(R.id.password)
-    val confirm by bindView<Button>(R.id.confirm)
-    val progress by bindView<ProgressBar>(R.id.progress)
+    private val login by bindView<TextView>(R.id.login)
+    private val password by bindView<TextView>(R.id.password)
+    private val confirm by bindView<Button>(R.id.confirm)
+    private val progress by bindView<ProgressBar>(R.id.progress)
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_activity)
 
-        val mActionBarToolbar = findViewById(R.id.toolbar_actionbar) as Toolbar
+        val mActionBarToolbar = findViewById<Toolbar>(R.id.toolbar_actionbar)
         setSupportActionBar(mActionBarToolbar)
         supportActionBar?.title = getString(R.string.login)
 

@@ -21,10 +21,10 @@ import java.io.File
 object NetworkController {
 
     //val BASE_URL = "http://192.168.1.48:5000/"
-    val BASE_URL = "http://188.225.77.144/"
+    private val BASE_URL = "http://188.225.77.144/"
 
     private val retrofit: Retrofit by lazy { init(MyApp.instance) }
-    val api by lazy { retrofit.create(API::class.java) }
+    val api: API by lazy { retrofit.create(API::class.java) }
 
     private fun init(context: Context): Retrofit {
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
@@ -51,7 +51,7 @@ object NetworkController {
         get
         private set
 
-    var listCall: Call<List<Lead>>? = null
+    private var listCall: Call<List<Lead>>? = null
 
     fun list(type: ListType, param: String? = null, reset: Boolean = false) {
         if (reset) listCall?.cancel()

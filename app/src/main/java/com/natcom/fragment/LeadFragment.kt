@@ -15,21 +15,21 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class LeadFragment : CustomFragment() {
-    val address by bindView<TextView>(R.id.address)
-    val apartment by bindView<TextView>(R.id.apartment)
-    val date by bindView<TextView>(R.id.date)
-    val mount_date by bindView<TextView>(R.id.mount_date)
-    val status by bindView<TextView>(R.id.status)
-    val responsible by bindView<TextView>(R.id.responsible)
-    val comment by bindView<TextView>(R.id.comment)
-    val contacts by bindView<LinearLayout>(R.id.contacts)
-    val close by bindView<Button>(R.id.close)
-    val shift by bindView<Button>(R.id.shift)
-    val deny by bindView<Button>(R.id.deny)
-    val pictures by bindView<Button>(R.id.pictures)
+    private val address by bindView<TextView>(R.id.address)
+    private val apartment by bindView<TextView>(R.id.apartment)
+    private val date by bindView<TextView>(R.id.date)
+    private val mount_date by bindView<TextView>(R.id.mount_date)
+    private val status by bindView<TextView>(R.id.status)
+    private val responsible by bindView<TextView>(R.id.responsible)
+    private val comment by bindView<TextView>(R.id.comment)
+    private val contacts by bindView<LinearLayout>(R.id.contacts)
+    private val close by bindView<Button>(R.id.close)
+    private val shift by bindView<Button>(R.id.shift)
+    private val deny by bindView<Button>(R.id.deny)
+    private val pictures by bindView<Button>(R.id.pictures)
 
 
-    lateinit var leadController: LeadController
+    private lateinit var leadController: LeadController
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         leadController = activity as LeadController // hack
@@ -46,12 +46,12 @@ class LeadFragment : CustomFragment() {
         comment.text = lead.comment
         contacts.removeAllViews()
         lead.contacts.forEach {
-            val view = getLayoutInflater(savedInstanceState).inflate(R.layout.contact_item, contacts, false)
-            (view.findViewById(R.id.name) as TextView).text = it.name
-            val phones = view.findViewById(R.id.phones) as LinearLayout
+            val view = layoutInflater.inflate(R.layout.contact_item, contacts, false)
+            view.findViewById<TextView>(R.id.name).text = it.name
+            val phones = view.findViewById<LinearLayout>(R.id.phones)
             it.phones.forEach {
-                val phone = getLayoutInflater(savedInstanceState).inflate(R.layout.phone_item, contacts, false)
-                (phone.findViewById(R.id.phone) as TextView).text = it
+                val phone = layoutInflater.inflate(R.layout.phone_item, contacts, false)
+                phone.findViewById<TextView>(R.id.phone).text = it
                 phones.addView(phone)
             }
             contacts.addView(view)

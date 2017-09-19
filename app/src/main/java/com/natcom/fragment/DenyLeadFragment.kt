@@ -16,9 +16,9 @@ import kotterknife.bindView
 
 
 class DenyLeadFragment : CustomFragment() {
-    val comment by bindView<EditText>(R.id.comment)
-    val ok by bindView<Button>(R.id.ok)
-    val cancel by bindView<Button>(R.id.cancel)
+    private val comment by bindView<EditText>(R.id.comment)
+    private val ok by bindView<Button>(R.id.ok)
+    private val cancel by bindView<Button>(R.id.cancel)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         initFragment(inflater.inflate(R.layout.deny_fragment, container, false), R.string.deny_lead)
@@ -29,7 +29,7 @@ class DenyLeadFragment : CustomFragment() {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    fun save() {
+    private fun save() {
         if (comment.text.isEmpty()) {
             toast(R.string.empty_fields)
             return

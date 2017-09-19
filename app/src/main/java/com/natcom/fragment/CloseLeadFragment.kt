@@ -26,15 +26,15 @@ import java.util.*
 
 
 class CloseLeadFragment : CustomFragment() {
-    val contract by bindView<CheckBox>(R.id.contract)
-    val mount by bindView<CheckBox>(R.id.mount)
-    val cashless by bindView<CheckBox>(R.id.cashless)
-    val comment by bindView<EditText>(R.id.comment)
-    val date by bindView<EditText>(R.id.date)
-    val leadSum by bindView<EditText>(R.id.leadSum)
-    val prepay by bindView<EditText>(R.id.prepay)
-    val picture by bindView<Button>(R.id.picture)
-    val save by bindView<Button>(R.id.save)
+    private val contract by bindView<CheckBox>(R.id.contract)
+    private val mount by bindView<CheckBox>(R.id.mount)
+    private val cashless by bindView<CheckBox>(R.id.cashless)
+    private val comment by bindView<EditText>(R.id.comment)
+    private val date by bindView<EditText>(R.id.date)
+    private val leadSum by bindView<EditText>(R.id.leadSum)
+    private val prepay by bindView<EditText>(R.id.prepay)
+    private val picture by bindView<Button>(R.id.picture)
+    private val save by bindView<Button>(R.id.save)
 
     private val REQUEST_CODE = 1212
     private val TAKE_PICTURE = 1

@@ -18,10 +18,10 @@ import java.util.*
 
 
 class ShiftLeadFragment : CustomFragment() {
-    val date by bindView<EditText>(R.id.date)
-    val comment by bindView<EditText>(R.id.comment)
-    val ok by bindView<Button>(R.id.ok)
-    val cancel by bindView<Button>(R.id.cancel)
+    private val date by bindView<EditText>(R.id.date)
+    private val comment by bindView<EditText>(R.id.comment)
+    private val ok by bindView<Button>(R.id.ok)
+    private val cancel by bindView<Button>(R.id.cancel)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         initFragment(inflater.inflate(R.layout.shift_fragment, container, false), R.string.shift_lead)
@@ -38,7 +38,7 @@ class ShiftLeadFragment : CustomFragment() {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    fun save() {
+    private fun save() {
         if (comment.text.isEmpty() || date.text.isEmpty()) {
             toast(R.string.empty_fields)
             return
@@ -51,7 +51,7 @@ class ShiftLeadFragment : CustomFragment() {
                 .show()
     }
 
-    fun shift() = invokeLater {
+    private fun shift() = invokeLater {
         val result = NetworkController.api.shift((activity as LeadController).lead().id,
                 ShiftRequest(date.text.toString(), comment.text.toString())).awaitResponse()
         if (!result.isSuccessful()) {

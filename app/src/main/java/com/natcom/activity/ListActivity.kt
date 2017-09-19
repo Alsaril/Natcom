@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
-import android.support.v4.view.MenuItemCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.*
@@ -27,17 +26,17 @@ import java.util.*
 
 class ListActivity : AppCompatActivity(), ListResult, View.OnClickListener, View.OnLongClickListener {
 
-    val navigation by bindView<BottomNavigationView>(R.id.navigation)
+    private val navigation by bindView<BottomNavigationView>(R.id.navigation)
     val list by bindView<RecyclerView>(R.id.list)
-    val progress by bindView<ProgressBar>(R.id.progress)
-    val empty_list by bindView<TextView>(R.id.empty_list)
+    private val progress by bindView<ProgressBar>(R.id.progress)
+    private val empty_list by bindView<TextView>(R.id.empty_list)
     var type: ListType? = null
         set(value) {
             field = value
             supportActionBar?.title = MyApp.instance.getString(field!!.iname)
         }
     var param: String? = null
-    var searchMenuItem: MenuItem? = null
+    private var searchMenuItem: MenuItem? = null
 
     private val jobHolder = JobHolder()
 
@@ -52,7 +51,7 @@ class ListActivity : AppCompatActivity(), ListResult, View.OnClickListener, View
 
         setContentView(R.layout.list_activity)
 
-        val mActionBarToolbar = findViewById(R.id.toolbar_actionbar) as Toolbar
+        val mActionBarToolbar = findViewById<Toolbar>(R.id.toolbar_actionbar)
         setSupportActionBar(mActionBarToolbar)
 
         navigation.setOnNavigationItemSelectedListener {
@@ -127,8 +126,8 @@ class ListActivity : AppCompatActivity(), ListResult, View.OnClickListener, View
 
             override fun onQueryTextChange(newText: String?) = true
         })
-        MenuItemCompat.setOnActionExpandListener(searchMenuItem, object : MenuItemCompat.OnActionExpandListener {
-            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+        searchMenuItem?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 type = ListType.SEARCH
                 return true
             }
@@ -166,13 +165,12 @@ class ListActivity : AppCompatActivity(), ListResult, View.OnClickListener, View
 
     override fun onListResult(type: ListType, success: Boolean, list: List<Lead>?) {
         progress.visibility = View.GONE
-        val newList: List<Lead>?
-        if (!success) {
-            toast(R.string.error)
-            newList = loadList(type)
-        } else {
+        val newList = if (success) {
             saveList(type, list)
-            newList = list
+            list
+        } else {
+            toast(R.string.error)
+            loadList(type)
         }
 
         newList?.let {
@@ -277,9 +275,9 @@ class ListAdapter(list: List<Lead>, private val listActivity: ListActivity) : Re
     override fun getItemCount() = list.size
 
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val picture = view.findViewById(R.id.picture) as TextView
-        val address = view.findViewById(R.id.address) as TextView
-        val status = view.findViewById(R.id.status) as TextView
-        val responsible = view.findViewById(R.id.responsible) as TextView
+        val picture: TextView = view.findViewById<TextView>(R.id.picture)
+        val address: TextView = view.findViewById<TextView>(R.id.address)
+        val status: TextView = view.findViewById<TextView>(R.id.status)
+        val responsible: TextView = view.findViewById<TextView>(R.id.responsible)
     }
 }

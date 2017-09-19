@@ -37,7 +37,5 @@ open class CustomFragment : Fragment() {
         jobHolder.dispose()
     }
 
-    fun invokeLater(f: suspend () -> Unit) {
-        jobHolder.add(launch(UI) { f() })
-    }
+    fun invokeLater(f: suspend () -> Unit) = jobHolder.add(launch(UI) { f() })
 }

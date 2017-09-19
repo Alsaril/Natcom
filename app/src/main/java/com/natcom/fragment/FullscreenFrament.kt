@@ -20,7 +20,7 @@ import java.util.*
 
 
 class FullscreenFragment : CustomFragment() {
-    val pager by bindView<ViewPager>(R.id.pager)
+    private val pager by bindView<ViewPager>(R.id.pager)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         initFragment(inflater.inflate(R.layout.fullscreen_fragment, container, false), "")
@@ -42,7 +42,7 @@ class FullscreenFragment : CustomFragment() {
     }
 }
 
-class FullscreenPagerAdapter(urlList: ArrayList<Picture>, val fullscreenFragment: FullscreenFragment) : PagerAdapter() {
+class FullscreenPagerAdapter(urlList: ArrayList<Picture>, private val fullscreenFragment: FullscreenFragment) : PagerAdapter() {
 
     val list: List<Picture> = Collections.unmodifiableList(urlList)
 
@@ -56,33 +56,30 @@ class FullscreenPagerAdapter(urlList: ArrayList<Picture>, val fullscreenFragment
         return image
     }
 
-    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-        (container as ViewPager).removeView(`object` as TouchImageView)
-
-    }
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) = (container as ViewPager).removeView(`object` as TouchImageView)
 
     override fun getCount() = list.size
 }
 
-class TouchImageView : ImageView {
+open class TouchImageView : ImageView {
 
     lateinit internal var matrix: Matrix
     internal var mode = NONE
 
     // Remember some things for zooming
-    internal var last = PointF()
-    internal var start = PointF()
-    internal var minScale = 1f
+    private var last = PointF()
+    private var start = PointF()
+    private var minScale = 1f
     internal var maxScale = 3f
-    lateinit internal var m: FloatArray
+    private lateinit var m: FloatArray
 
     internal var viewWidth: Int = 0
     internal var viewHeight: Int = 0
     internal var saveScale = 1f
-    protected var origWidth: Float = 0.toFloat()
-    protected var origHeight: Float = 0.toFloat()
-    internal var oldMeasuredWidth: Int = 0
-    internal var oldMeasuredHeight: Int = 0
+    private var origWidth: Float = 0.toFloat()
+    private var origHeight: Float = 0.toFloat()
+    private var oldMeasuredWidth: Int = 0
+    private var oldMeasuredHeight: Int = 0
 
     lateinit internal var mScaleDetector: ScaleGestureDetector
 
@@ -191,7 +188,7 @@ class TouchImageView : ImageView {
             matrix.postTranslate(fixTransX, fixTransY)
     }
 
-    internal fun getFixTrans(trans: Float, viewSize: Float, contentSize: Float): Float {
+    private fun getFixTrans(trans: Float, viewSize: Float, contentSize: Float): Float {
         val minTrans: Float
         val maxTrans: Float
 
@@ -210,7 +207,7 @@ class TouchImageView : ImageView {
         return 0f
     }
 
-    internal fun getFixDragTrans(delta: Float, viewSize: Float, contentSize: Float): Float {
+    private fun getFixDragTrans(delta: Float, viewSize: Float, contentSize: Float): Float {
         if (contentSize <= viewSize) {
             return 0f
         }

@@ -38,14 +38,12 @@ val REQUEST_CODE = 214
 
 fun auth(context: Context) = PreferenceManager.getDefaultSharedPreferences(context).contains(LOGIN_KEY)
 
-fun reset() {
-    PreferenceManager
-            .getDefaultSharedPreferences(MyApp.instance)
-            .edit()
-            .remove(LOGIN_KEY)
-            .remove(PASSWORD_KEY)
-            .apply()
-}
+fun reset() = PreferenceManager
+        .getDefaultSharedPreferences(MyApp.instance)
+        .edit()
+        .remove(LOGIN_KEY)
+        .remove(PASSWORD_KEY)
+        .apply()
 
 private val MONTH_NAMES = arrayOf(
         "января",
@@ -73,13 +71,9 @@ fun prepareDate(year: Int, month: Int, day: Int): String {
     return SimpleDateFormat("yyyy-MM-dd 00:00:00", Locale.getDefault()).format(c.time)
 }
 
-fun Fragment.toast(@StringRes text: Int) {
-    Toast.makeText(activity, text, Toast.LENGTH_SHORT).show()
-}
+fun Fragment.toast(@StringRes text: Int) = Toast.makeText(activity, text, Toast.LENGTH_SHORT).show()
 
-fun AppCompatActivity.toast(@StringRes text: Int) {
-    Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-}
+fun AppCompatActivity.toast(@StringRes text: Int) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
 
 val MAX_SIZE = 1280
 
@@ -98,25 +92,19 @@ fun compressImage(uri: Uri) = async(UI) {
 }
 
 
-suspend fun <T : Any?> Call<T>.awaitResponse(): Result<T> {
-    return suspendCancellableCoroutine { continuation ->
-        enqueue(object : Callback<T> {
-            override fun onResponse(call: Call<T>?, response: Response<T>) {
-                if (response.isSuccessful) {
-                    continuation.resume(Result(throwable = FailedResponseException("code=${response.code()} body=${response.body()}")))
-                } else {
-                    continuation.resume(Result(response))
-                }
-            }
+suspend fun <T : Any?> Call<T>.awaitResponse(): Result<T> = suspendCancellableCoroutine { continuation ->
+    enqueue(object : Callback<T> {
+        override fun onResponse(call: Call<T>?, response: Response<T>) = if (response.isSuccessful) {
+            continuation.resume(Result(throwable = FailedResponseException("code=${response.code()} body=${response.body()}")))
+        } else {
+            continuation.resume(Result(response))
+        }
 
-            override fun onFailure(call: Call<T>, t: Throwable) {
-                continuation.resume(Result(throwable = t))
-            }
-        })
-    }
+        override fun onFailure(call: Call<T>, t: Throwable) = continuation.resume(Result(throwable = t))
+    })
 }
 
-class Result<T>(response: Response<T>? = null, val throwable: Throwable? = null) {
+class Result<out T>(response: Response<T>? = null, val throwable: Throwable? = null) {
     private var value: T? = response?.body()
 
     fun isSuccessful() = value != null
