@@ -2,6 +2,7 @@ package com.natcom.activity
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import com.natcom.FRAGMENT_TAG
@@ -51,6 +52,7 @@ class LeadActivity : AppCompatActivity(), LeadController {
         transaction.replace(R.id.root, fragment, FRAGMENT_TAG)
         if (addToBackStack) {
             transaction.addToBackStack(null)
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
         }
         transaction.commitAllowingStateLoss()
         this.fragment = fragment
