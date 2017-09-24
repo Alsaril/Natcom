@@ -26,11 +26,11 @@ class PictureListFragment : Fragment(), View.OnClickListener {
         return inflater.inflate(R.layout.picture_list_fragment, container, false)
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.pictures)
-        list = view?.findViewById(R.id.list)!!
+        list = view.findViewById(R.id.list)
 
         list.setHasFixedSize(true)
         list.layoutManager = GridLayoutManager(context, resources.getInteger(R.integer.list_columns))

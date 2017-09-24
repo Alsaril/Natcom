@@ -94,7 +94,7 @@ fun compressImage(uri: Uri) = async(UI) {
 
 suspend fun <T : Any?> Call<T>.awaitResponse(): Result<T> = suspendCancellableCoroutine { continuation ->
     enqueue(object : Callback<T> {
-        override fun onResponse(call: Call<T>?, response: Response<T>) = if (response.isSuccessful) {
+        override fun onResponse(call: Call<T>?, response: Response<T>) = if (!response.isSuccessful) {
             continuation.resume(Result(throwable = FailedResponseException("code=${response.code()} body=${response.body()}")))
         } else {
             continuation.resume(Result(response))
@@ -107,7 +107,7 @@ suspend fun <T : Any?> Call<T>.awaitResponse(): Result<T> = suspendCancellableCo
 class Result<out T>(response: Response<T>? = null, val throwable: Throwable? = null) {
     private var value: T? = response?.body()
 
-    fun isSuccessful() = value != null
+    fun isSuccessful() = throwable == null
 
     fun value(): T = value!!
 }

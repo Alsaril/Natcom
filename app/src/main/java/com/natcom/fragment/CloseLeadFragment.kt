@@ -104,7 +104,12 @@ class CloseLeadFragment : CustomFragment() {
         invokeLater {
             compressImage(uri).await()
             val result = NetworkController.picture(leadController.lead().id, uri).awaitResponse()
-            toast(if (!result.isSuccessful()) R.string.error else R.string.post_success)
+            if (result.isSuccessful()) {
+                toast(R.string.post_success)
+                leadController.lead().images.add(result.value())
+            } else {
+                toast(R.string.error)
+            }
         }
     }
 

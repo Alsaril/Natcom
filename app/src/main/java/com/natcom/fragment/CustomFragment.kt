@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.natcom.JobHolder
+import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.util.concurrent.atomic.AtomicReference
@@ -37,5 +38,5 @@ open class CustomFragment : Fragment() {
         jobHolder.dispose()
     }
 
-    fun invokeLater(f: suspend () -> Unit) = jobHolder.add(launch(UI) { f() })
+    fun invokeLater(f: suspend CoroutineScope.() -> Unit) = jobHolder.add(launch(UI, block = f))
 }
